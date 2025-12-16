@@ -1,7 +1,7 @@
+import { SplitTabBar } from '@/components/tabs';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { SplitTabBar } from '@/components/tabs';
 
 export default function TabLayout() {
   return (
