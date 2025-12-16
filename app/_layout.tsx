@@ -27,7 +27,8 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
           </Stack>
-          <StatusBar style="auto" />
+          {/* ✅ ФІКС: Встановлюємо стиль Light, щоб текст був білим на чорному фоні */}
+          <StatusBar style="light" /> 
         </ThemeProvider>
       </SafeAreaProvider>
     </QueryClientProvider>
