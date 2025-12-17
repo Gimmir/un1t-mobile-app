@@ -1,14 +1,14 @@
 import {
-  ClassCard,
-  DATES_WITH_CLASSES,
-  DatePicker,
-  EmptyState,
-  Header,
-  MOCK_CLASSES,
-  StudioSelector,
-  generateMonthCalendar,
-  generateWeekDates,
-  getMonthYear,
+    ClassCard,
+    DATES_WITH_CLASSES,
+    DatePicker,
+    EmptyState,
+    Header,
+    MOCK_CLASSES,
+    StudioSelector,
+    generateMonthCalendar,
+    generateWeekDates,
+    getMonthYear,
 } from '@/components/classes';
 import { StatusBar } from 'expo-status-bar';
 import React, { useRef, useState } from 'react';
@@ -126,23 +126,25 @@ export default function ClassesScreen() {
         <StudioSelector />
 
         <GestureDetector gesture={swipeGesture}>
-          <DatePicker
-            monthYear={monthYear}
-            isCalendarOpen={isCalendarOpen}
-            weekDates={weekDates}
-            selectedDate={selectedDate}
-            datesWithClasses={DATES_WITH_CLASSES}
-            calendarHeight={calendarHeight}
-            monthCalendar={monthCalendar}
-            today={today}
-            currentWeekDate={currentWeekDate}
-            onPrevious={goToPreviousWeek}
-            onNext={goToNextWeek}
-            onToday={goToToday}
-            onToggleCalendar={toggleCalendar}
-            onDateSelect={setSelectedDate}
-            onCalendarDateSelect={selectDateFromCalendar}
-          />
+          <View collapsable={false}>
+            <DatePicker
+              monthYear={monthYear}
+              isCalendarOpen={isCalendarOpen}
+              weekDates={weekDates}
+              selectedDate={selectedDate}
+              datesWithClasses={DATES_WITH_CLASSES}
+              calendarHeight={calendarHeight}
+              monthCalendar={monthCalendar}
+              today={today}
+              currentWeekDate={currentWeekDate}
+              onPrevious={goToPreviousWeek}
+              onNext={goToNextWeek}
+              onToday={goToToday}
+              onToggleCalendar={toggleCalendar}
+              onDateSelect={setSelectedDate}
+              onCalendarDateSelect={selectDateFromCalendar}
+            />
+          </View>
         </GestureDetector>
 
         <ScrollView

@@ -1,8 +1,33 @@
-import { useMutate } from '@/src/hooks/useFetch';
+import { useMutate, useFetch } from '@/src/hooks/useFetch';
 import { StorageKeys, storageUtils } from '@/src/lib/storage';
-import { LoginRequest, LoginResponse } from '@/src/types/api';
+import { LoginRequest, LoginResponse, User } from '@/src/types/api';
 import { router } from 'expo-router';
 import { authApi } from '../api/auth.api';
+import { api } from '@/src/lib/axios';
+
+/**
+ * Hook to get current user profile
+ * Fetches from /users/me
+ */
+export function useAuth() {
+  return useFetch<User>(
+    ['user', 'me'],
+    async () => {
+      const response = await api.get<any>('/users/me');
+      console.log('📱 useAuth response:', JSON.stringify(response, null, 2));
+      
+      // Backend може повертати { data: user } або просто user
+      const userData = response?.data || response;
+      console.log('👤 User data:', userData);
+      
+      return userData;
+    },
+    {
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    }
+  );
+}
 
 /**
  * Hook for handling user login

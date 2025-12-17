@@ -6,8 +6,9 @@ import {
 } from '@/components/home';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '@/src/features/auth/hooks/use-auth';
 
 const CHALLENGES = [
   {
@@ -43,6 +44,14 @@ const PERFORMANCE = [
 ];
 
 export default function HomeScreen() {
+  const { data: user, isLoading, error } = useAuth();
+  
+  // Debug logging
+  console.log('🏠 Home Screen - isLoading:', isLoading);
+  console.log('🏠 Home Screen - user:', user);
+  console.log('🏠 Home Screen - firstName:', user?.firstName);
+  console.log('🏠 Home Screen - error:', error);
+
   const handleNextClassPress = () => {
     console.log('Next Class Pressed!');
   };
@@ -67,7 +76,13 @@ export default function HomeScreen() {
           contentContainerStyle={{ paddingBottom: 150 }}
         >
           <View style={styles.headerContainer}>
-            <Text style={styles.headerText}>WELCOME BACK, JO</Text>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Text style={styles.headerText}>
+                WELCOME BACK{user?.firstName ? `, ${user.firstName.toUpperCase()}` : ''}
+              </Text>
+            )}
           </View>
 
           <PowerCard />
@@ -117,6 +132,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 30,
+    minHeight: 24, // Prevents layout shift during loading
   },
   headerText: {
     color: 'white',
