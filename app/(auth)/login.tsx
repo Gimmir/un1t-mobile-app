@@ -1,10 +1,12 @@
 import { CustomInput, PrimaryButton } from '@/components/auth';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useLogin } from '@/src/features/auth/hooks/use-auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as z from 'zod';
 
@@ -20,6 +22,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { mutate: login, isPending } = useLogin();
+  const [serverError, setServerError] = useState<string>('');
 
   const {
     control,
@@ -35,8 +39,17 @@ export default function LoginScreen() {
   });
 
   const onSubmit = (data: LoginFormData) => {
-    console.log('Login Data:', data);
-    router.replace('/(tabs)');
+    // Clear previous server error
+    setServerError('');
+    
+    login(data, {
+      onSuccess: () => {
+        router.replace('/(tabs)');
+      },
+      onError: (err) => {
+        setServerError(err.message || 'Invalid email or password. Please try again.');
+      },
+    });
   };
 
   const handleForgotPassword = () => {
@@ -81,21 +94,28 @@ export default function LoginScreen() {
                   placeholder="Email"
                   type="email"
                   showClearButton
-                  // --- ВИПРАВЛЕНО: Використовуємо emailAddress для Email поля ---
+                  editable={!isPending}
                   textContentType="emailAddress" 
                   autoComplete="email"
                 />
 
-                <CustomInput
-                  control={control}
-                  name="password"
-                  error={errors.password}
-                  placeholder="Password"
-                  type="password"
-                  // --- Поля пароля ---
-                  textContentType="password" 
-                  autoComplete="password"
-                />
+                <View>
+                  <CustomInput
+                    control={control}
+                    name="password"
+                    error={errors.password}
+                    placeholder="Password"
+                    type="password"
+                    editable={!isPending}
+                    textContentType="password" 
+                    autoComplete="password"
+                  />
+                  
+                  {/* Server Error Message - показуємо під паролем */}
+                  {serverError && !errors.password && (
+                    <Text className="text-red-500 text-xs mt-1 ml-1">{serverError}</Text>
+                  )}
+                </View>
 
                 <Text className="text-[#52525b] text-xs leading-4 mt-1">
                   Must contain at least 8 characters including an uppercase letter, a lowercase
@@ -103,7 +123,13 @@ export default function LoginScreen() {
                 </Text>
 
                 <View className="mt-6">
-                  <PrimaryButton title="LOGIN" onPress={handleSubmit(onSubmit)} />
+                  {isPending ? (
+                    <View className="bg-white/10 rounded-full py-4 items-center justify-center">
+                      <ActivityIndicator size="small" color="#ffffff" />
+                    </View>
+                  ) : (
+                    <PrimaryButton title="LOGIN" onPress={handleSubmit(onSubmit)} disabled={isPending} />
+                  )}
                 </View>
 
                 <TouchableOpacity

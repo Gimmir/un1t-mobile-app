@@ -25,10 +25,18 @@ export interface User {
  * Authentication responses
  */
 export interface LoginResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
+  success?: boolean;
+  data?: {
+    user?: User;
+    token?: string;
+    accessToken?: string;
+  };
+  // Also support direct response (for flexibility)
+  user?: User;
+  token?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
 }
 
 export interface RefreshTokenResponse {

@@ -1,12 +1,4 @@
-
-/**
- * MMKV storage instance for high-performance local storage
- * Used for authentication tokens and other sensitive data
- */
-export const storage = new MMKV({
-  id: 'un1t-app-storage',
-  encryptionKey: 'your-encryption-key-here', // TODO: Replace with secure key from env
-});
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Storage keys enum for type-safe storage access
@@ -18,31 +10,58 @@ export enum StorageKeys {
 }
 
 /**
- * Typed storage utilities
+ * Typed storage utilities using AsyncStorage
+ * Compatible with Expo Go - no native build required
  */
 export const storageUtils = {
-  setString: (key: StorageKeys, value: string) => {
-    storage.set(key, value);
+  setString: async (key: StorageKeys, value: string) => {
+    try {
+      await AsyncStorage.setItem(key, value);
+    } catch (error) {
+      console.error('Storage setString error:', error);
+    }
   },
-  
-  getString: (key: StorageKeys): string | undefined => {
-    return storage.getString(key);
+
+  getString: async (key: StorageKeys): Promise<string | null> => {
+    try {
+      return await AsyncStorage.getItem(key);
+    } catch (error) {
+      console.error('Storage getString error:', error);
+      return null;
+    }
   },
-  
-  setObject: <T>(key: StorageKeys, value: T) => {
-    storage.set(key, JSON.stringify(value));
+
+  setObject: async <T,>(key: StorageKeys, value: T) => {
+    try {
+      await AsyncStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error('Storage setObject error:', error);
+    }
   },
-  
-  getObject: <T>(key: StorageKeys): T | undefined => {
-    const value = storage.getString(key);
-    return value ? JSON.parse(value) : undefined;
+
+  getObject: async <T,>(key: StorageKeys): Promise<T | null> => {
+    try {
+      const value = await AsyncStorage.getItem(key);
+      return value ? JSON.parse(value) : null;
+    } catch (error) {
+      console.error('Storage getObject error:', error);
+      return null;
+    }
   },
-  
-  delete: (key: StorageKeys) => {
-    storage.delete(key);
+
+  delete: async (key: StorageKeys) => {
+    try {
+      await AsyncStorage.removeItem(key);
+    } catch (error) {
+      console.error('Storage delete error:', error);
+    }
   },
-  
-  clearAll: () => {
-    storage.clearAll();
+
+  clearAll: async () => {
+    try {
+      await AsyncStorage.clear();
+    } catch (error) {
+      console.error('Storage clearAll error:', error);
+    }
   },
 };

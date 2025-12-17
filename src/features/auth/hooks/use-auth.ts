@@ -6,6 +6,7 @@ import { authApi } from '../api/auth.api';
 
 /**
  * Hook for handling user login
+ * Supports flexible token naming (token or accessToken)
  * 
  * @example
  * const { mutate: login, isPending } = useLogin();
@@ -16,18 +17,33 @@ export function useLogin() {
   return useMutate<LoginResponse, Error, LoginRequest>(
     (credentials) => authApi.login(credentials),
     {
-      onSuccess: (data) => {
-        // Store tokens in MMKV
-        storageUtils.setString(StorageKeys.AUTH_TOKEN, data.accessToken);
-        storageUtils.setString(StorageKeys.REFRESH_TOKEN, data.refreshToken);
-        storageUtils.setObject(StorageKeys.USER_DATA, data.user);
+      onSuccess: async (response) => {
+        // Backend returns { success: true, data: { user, token } }
+        const data = response.data || response;
         
-        // Navigate to home screen
-        router.replace('/(tabs)');
+        // Handle flexible token naming (token or accessToken)
+        const authToken = data.token || data.accessToken || response.token || response.accessToken;
+        const user = data.user || response.user;
+        
+        if (!authToken) {
+          console.error('No token received from backend');
+          console.error('Response:', JSON.stringify(response, null, 2));
+          return;
+        }
+        
+        // Store tokens in AsyncStorage
+        await storageUtils.setString(StorageKeys.AUTH_TOKEN, authToken);
+        
+        if (user) {
+          await storageUtils.setObject(StorageKeys.USER_DATA, user);
+        }
+        
+        
+        console.log('Login successful, token stored');
       },
       onError: (error) => {
         console.error('Login failed:', error.message);
-        // You can add toast notification here
+        // Error will be handled in the component
       },
     }
   );
@@ -40,9 +56,9 @@ export function useLogout() {
   return useMutate(
     () => authApi.logout(),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         // Clear all stored data
-        storageUtils.clearAll();
+        await storageUtils.clearAll();
         
         // Navigate to login screen
         router.replace('/login');

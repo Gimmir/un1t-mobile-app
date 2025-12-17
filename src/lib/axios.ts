@@ -4,9 +4,8 @@ import { StorageKeys, storageUtils } from './storage';
 
 /**
  * Base API URL - Update this with your backend URL
- * TODO: Move to environment variables
  */
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || process.env.API_URL || 'https://un1t-back-end-development.up.railway.app';
 
 /**
  * Axios instance with automatic token injection and error handling
@@ -20,11 +19,11 @@ export const apiClient: AxiosInstance = axios.create({
 });
 
 /**
- * Request interceptor - Automatically injects Bearer token from MMKV
+ * Request interceptor - Automatically injects Bearer token from AsyncStorage
  */
 apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = storageUtils.getString(StorageKeys.AUTH_TOKEN);
+  async (config: InternalAxiosRequestConfig) => {
+    const token = await storageUtils.getString(StorageKeys.AUTH_TOKEN);
     
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -46,31 +45,50 @@ apiClient.interceptors.response.use(
   },
   async (error: AxiosError) => {
     const status = error.response?.status;
+    const url = error.config?.url || '';
     
-    // Handle 401 Unauthorized - Auto logout
+    // Don't auto-logout on 401 for login/register endpoints
+    const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register');
+    
+    // Extract error message from response - handle various formats
+    const errorData = error.response?.data as any;
+    let serverMessage = '';
+    
+    // Try different possible error message formats
+    if (typeof errorData?.message === 'string') {
+      serverMessage = errorData.message;
+    } else if (typeof errorData?.error === 'string') {
+      serverMessage = errorData.error;
+    } else if (typeof errorData === 'string') {
+      serverMessage = errorData;
+    }
+    
+    // Handle 401 Unauthorized
     if (status === 401) {
-      // Clear all stored data
-      storageUtils.clearAll();
-      
-      // Redirect to login screen
-      router.replace('/login');
-      
-      return Promise.reject(new Error('Session expired. Please login again.'));
+      if (isAuthEndpoint) {
+        // For login/register, return user-friendly message
+        return Promise.reject(new Error(serverMessage || 'Invalid email or password. Please try again.'));
+      } else {
+        // For other endpoints, auto logout
+        await storageUtils.clearAll();
+        router.replace('/login');
+        return Promise.reject(new Error('Session expired. Please login again.'));
+      }
     }
     
     // Handle 403 Forbidden
     if (status === 403) {
-      return Promise.reject(new Error('Access denied'));
+      return Promise.reject(new Error(serverMessage || 'Access denied'));
     }
     
     // Handle 404 Not Found
     if (status === 404) {
-      return Promise.reject(new Error('Resource not found'));
+      return Promise.reject(new Error(serverMessage || 'Resource not found'));
     }
     
     // Handle 500 Internal Server Error
     if (status === 500) {
-      return Promise.reject(new Error('Server error. Please try again later.'));
+      return Promise.reject(new Error(serverMessage || 'Server error. Please try again later.'));
     }
     
     // Handle network errors
@@ -78,11 +96,8 @@ apiClient.interceptors.response.use(
       return Promise.reject(new Error('Network error. Please check your connection.'));
     }
     
-    // Default error handling
-    const errorMessage = 
-      (error.response?.data as any)?.message || 
-      error.message || 
-      'An error occurred';
+    // Default error handling - use server message if available
+    const errorMessage = serverMessage || 'An error occurred. Please try again.';
     return Promise.reject(new Error(errorMessage));
   }
 );
