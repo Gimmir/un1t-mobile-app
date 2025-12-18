@@ -9,14 +9,27 @@
  * User entity from backend
  */
 export interface User {
-  id: string;
+  _id: string;
+  id?: string;  // Backwards compatibility
   email: string;
   firstName: string;
   lastName: string;
   phoneNumber?: string;
+  phone?: string;
   avatarUrl?: string;
-  role: 'user' | 'admin' | 'vendor';
-  isEmailVerified: boolean;
+  avatar?: string;
+  role: 'user' | 'admin' | 'vendor' | 'client' | 'coach' | 'owner';
+  isEmailVerified?: boolean;
+  status?: 'active' | 'inactive' | 'blocked';
+  birthday?: string;
+  dob?: string;
+  country?: string;
+  city?: string;
+  address?: string;
+  postcode?: string;
+  timezone?: string;
+  language?: string;
+  studio?: string | { _id: string; id?: string; title: string; name?: string } | null;
   createdAt: string;
   updatedAt: string;
 }

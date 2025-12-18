@@ -1,34 +1,68 @@
 import {
-    ClassCard,
-    DATES_WITH_CLASSES,
-    DatePicker,
-    EmptyState,
-    Header,
-    MOCK_CLASSES,
-    StudioSelector,
-    generateMonthCalendar,
-    generateWeekDates,
-    getMonthYear,
+  DatePicker,
+  Header,
+  StudioSelector,
+  generateMonthCalendar,
+  generateWeekDates,
+  getMonthYear,
 } from '@/components/classes';
+import { ClassesEventsList, useClassesScreenData } from '@/components/classes-screen';
+import { HomeTopBackground } from '@/components/home';
+import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useRef, useState } from 'react';
-import { Animated, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, AppState, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ClassesScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState(today.getDate());
   const [currentWeekDate, setCurrentWeekDate] = useState(today);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const calendarHeight = useRef(new Animated.Value(0)).current;
+  const [refreshing, setRefreshing] = useState(false);
+
+  const {
+    studios,
+    studiosLoading,
+    selectedStudioId,
+    setSelectedStudioId,
+    datesWithClasses,
+    eventsForSelectedDay,
+    eventsLoading,
+    eventsErrorMessage,
+    refetchEvents,
+  } = useClassesScreenData({ currentWeekDate, selectedDate });
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetchEvents();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchEvents]);
+
+  // Refresh events when app comes to foreground
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        refetchEvents();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [refetchEvents]);
 
   const weekDates = generateWeekDates(currentWeekDate);
   const monthYear = getMonthYear(currentWeekDate);
   const monthCalendar = generateMonthCalendar(currentWeekDate);
-  const classes = MOCK_CLASSES[selectedDate] || [];
 
   const goToNextWeek = () => {
     if (isCalendarOpen) {
@@ -117,22 +151,30 @@ export default function ClassesScreen() {
     });
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <StatusBar style="light" />
+    <GestureHandlerRootView style={styles.container}>
+      <StatusBar style="light" />
+      <HomeTopBackground />
 
-        <Header />
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={styles.headerBlock}>
+          <Header />
+        </View>
 
-        <StudioSelector />
+        <StudioSelector
+          studios={studios}
+          selectedStudioId={selectedStudioId}
+          onSelectStudio={setSelectedStudioId}
+          isLoading={studiosLoading}
+        />
 
         <GestureDetector gesture={swipeGesture}>
-          <View collapsable={false}>
+          <View style={styles.datePickerCard} collapsable={false}>
             <DatePicker
               monthYear={monthYear}
               isCalendarOpen={isCalendarOpen}
               weekDates={weekDates}
               selectedDate={selectedDate}
-              datesWithClasses={DATES_WITH_CLASSES}
+              datesWithClasses={datesWithClasses}
               calendarHeight={calendarHeight}
               monthCalendar={monthCalendar}
               today={today}
@@ -149,16 +191,33 @@ export default function ClassesScreen() {
 
         <ScrollView
           style={styles.classList}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+          contentContainerStyle={[
+            styles.classListContent,
+            { paddingBottom: insets.bottom + 140 },
+          ]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#FFFFFF"
+              colors={['#FFFFFF']}
+            />
+          }
         >
-          {classes.length > 0 ? (
-            classes.map((classItem) => <ClassCard key={classItem.id} {...classItem} />)
-          ) : (
-            <EmptyState />
-          )}
+          <ClassesEventsList
+            events={eventsForSelectedDay}
+            isLoading={eventsLoading}
+            errorMessage={eventsErrorMessage}
+            onEventPress={(pressedEvent) =>
+              router.push({
+                pathname: '/class-details/[id]',
+                params: { id: pressedEvent._id, event: encodeURIComponent(JSON.stringify(pressedEvent)) },
+              })
+            }
+          />
         </ScrollView>
-      </View>
+      </SafeAreaView>
     </GestureHandlerRootView>
   );
 }
@@ -166,9 +225,28 @@ export default function ClassesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#191919',
+  },
+  safeArea: {
+    flex: 1,
+  },
+  headerBlock: {
+    marginTop: 10,
+  },
+  datePickerCard: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#1F1F23',
+    backgroundColor: '#101012',
+    overflow: 'hidden',
   },
   classList: {
     flex: 1,
+  },
+  classListContent: {
+    paddingHorizontal: 16,
+    paddingTop: 4,
   },
 });

@@ -16,11 +16,13 @@ export const profileApi = {
    */
   updateProfile: async (userId: string, data: UpdateProfileRequest) => {
     const response = await api.put<{ data?: User } | User>(`/users/${userId}`, data);
-    const payload = (response as any)?.data;
-    if (payload?.data) {
-      return payload.data;
+    if (response && typeof response === 'object' && 'data' in response) {
+      const payload = (response as { data?: User }).data;
+      if (payload) {
+        return payload;
+      }
     }
-    return payload ?? (response as any);
+    return response as User;
   },
 
   /**

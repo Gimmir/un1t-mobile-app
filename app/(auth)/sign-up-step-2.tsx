@@ -7,14 +7,14 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as z from 'zod';
@@ -57,11 +57,10 @@ export default function SignUpStep2Screen() {
   });
 
   const onSubmit = (data: Step2FormData) => {
-    console.log("Step 2 Data:", data);
     router.push('/(auth)/sign-up-step-3');
   };
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
+  const onDateChange = (event: unknown, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
       setShowDatePicker(false);
     }

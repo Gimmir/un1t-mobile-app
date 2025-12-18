@@ -1,29 +1,26 @@
+import { EventCard } from '@/components/events';
 import {
   CreditSummaryCard,
   HomeHero,
   HomeImageCard,
   HomeTopBackground,
-  NextClassPanel,
   PowerPanel,
   SnapCarouselSection,
 } from '@/components/home';
+import type { Event } from '@/DATA_TYPES/event';
 import { useAuth } from '@/src/features/auth/hooks/use-auth';
+import { useEvents, usePopulatedEvent } from '@/src/features/events/hooks/use-events';
+import { useStudio } from '@/src/features/studios/hooks/use-studios';
+import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { AppState, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CREDIT_SUMMARY = {
   remaining: 15,
   total: 20,
   expires: '30.08.2020',
-};
-
-const UPCOMING_CLASS = {
-  program: 'TROOPER',
-  date: 'SEP 30',
-  time: '9.00 AM',
-  location: 'LONDON BRIDGE',
 };
 
 const CHALLENGES = [
@@ -63,13 +60,100 @@ const SLIDE_OUTER_MARGIN = 20;
 const SLIDE_PREVIEW = 40;
 const SLIDE_SPACING = 12;
 
+function NextEventCard({ event, studioTitle }: { event: Event; studioTitle: string }) {
+  const router = useRouter();
+  const { populatedEvent } = usePopulatedEvent(event);
+  const displayEvent = populatedEvent ?? event;
+
+  return (
+    <View style={styles.nextEventSection}>
+      <Text style={styles.nextEventLabel}>
+        NEXT CLASS AT <Text style={styles.nextEventLocation}>{studioTitle}</Text>
+      </Text>
+      <EventCard
+        event={displayEvent}
+        onPress={(e) =>
+          router.push({
+            pathname: '/class-details/[id]',
+            params: { id: e._id, event: encodeURIComponent(JSON.stringify(e)) },
+          })
+        }
+      />
+    </View>
+  );
+}
+
 export default function HomeScreen() {
-  const { data: user, isLoading } = useAuth();
+  const { data: user, isLoading, refetch: refetchUser } = useAuth();
   const { width: screenWidth } = useWindowDimensions();
+  const [refreshing, setRefreshing] = useState(false);
+  const { data: allEvents = [] } = useEvents();
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetchUser();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchUser]);
+
+  // Refresh data when app comes to foreground
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        refetchUser();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [refetchUser]);
 
   const welcomeText = user?.firstName
     ? `WELCOME BACK, ${user.firstName.toUpperCase()}`
     : 'WELCOME BACK';
+
+  const userStudioRef = user?.studio ?? null;
+  const studioId =
+    typeof userStudioRef === 'string'
+      ? userStudioRef
+      : userStudioRef && typeof userStudioRef === 'object'
+        ? userStudioRef._id
+        : null;
+
+  const populatedStudioTitle =
+    userStudioRef && typeof userStudioRef === 'object' ? userStudioRef.title : undefined;
+  const { data: fetchedStudio } = useStudio(populatedStudioTitle ? null : studioId);
+  const studioTitle = populatedStudioTitle ?? fetchedStudio?.title ?? (isLoading ? '…' : '—');
+
+  // Find next upcoming event for user's studio
+  const nextEvent = useMemo(() => {
+    if (!allEvents.length || !studioId) return null;
+    
+    const now = new Date();
+    const upcomingEvents = allEvents
+      .filter((event: Event) => {
+        // Filter by user's studio
+        if (event.studio !== studioId) return false;
+        
+        // Filter only active events
+        if (event.status !== 'active') return false;
+        
+        // Filter only future events
+        if (!event.start_time) return false;
+        const eventDate = new Date(event.start_time);
+        return eventDate > now;
+      })
+      .sort((a: Event, b: Event) => {
+        const dateA = new Date(a.start_time!);
+        const dateB = new Date(b.start_time!);
+        return dateA.getTime() - dateB.getTime();
+      });
+    
+    return upcomingEvents[0] || null;
+  }, [allEvents, studioId]);
 
   const carouselLayout = useMemo(() => {
     const itemWidth = Math.max(240, screenWidth - SLIDE_OUTER_MARGIN * 2 - SLIDE_PREVIEW);
@@ -88,13 +172,21 @@ export default function HomeScreen() {
           style={{ flex: 1 }}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#FFFFFF"
+              colors={['#FFFFFF']}
+            />
+          }
         >
           <HomeHero
             isLoading={isLoading}
             title={welcomeText}
             subtitle={
               <>
-                UN1T <Text style={styles.heroLocation}>LONDON BRIDGE</Text> • 06:30 — 21:00
+                STUDIO <Text style={styles.heroLocation}>{studioTitle.toUpperCase()}</Text> • 06:30 — 21:00
               </>
             }
           />
@@ -108,12 +200,7 @@ export default function HomeScreen() {
 
           <PowerPanel />
 
-          <NextClassPanel
-            program={UPCOMING_CLASS.program}
-            date={UPCOMING_CLASS.date}
-            time={UPCOMING_CLASS.time}
-            location={UPCOMING_CLASS.location}
-          />
+          {nextEvent && <NextEventCard event={nextEvent} studioTitle={studioTitle.toUpperCase()} />}
 
           <SnapCarouselSection
             title="CHALLENGES"
@@ -180,5 +267,21 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '800',
     letterSpacing: 1,
+  },
+  nextEventSection: {
+    marginHorizontal: 16,
+    marginBottom: 24,
+  },
+  nextEventLabel: {
+    color: '#9CA3AF',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1.5,
+    marginLeft: 4,
+    marginBottom: 10,
+  },
+  nextEventLocation: {
+    color: '#FFFFFF',
+    fontWeight: '800',
   },
 });

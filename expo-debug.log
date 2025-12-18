@@ -1,0 +1,15 @@
+env: load .env
+env: export API_URL
+Starting project at /Users/nazarmoroze/Desktop/Work/Gimmir LLC/AI/un1t-mobile-app
+React Compiler enabled
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+The following packages should be updated for best compatibility with the installed expo version:
+  @shopify/flash-list@2.2.0 - expected version: 2.0.2
+  expo@54.0.29 - expected version: ~54.0.30
+  expo-linking@8.0.10 - expected version: ~8.0.11
+  expo-router@6.0.19 - expected version: ~6.0.21
+  expo-splash-screen@31.0.12 - expected version: ~31.0.13
+Your project may not work correctly until you install the expected versions of the packages.
+Waiting on http://localhost:8081
+Logs for your project will appear below.

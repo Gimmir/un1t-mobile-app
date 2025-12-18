@@ -30,7 +30,6 @@ export default function ForgotPasswordScreen() {
   });
 
   const onSubmit = (data: ForgotPasswordFormData) => {
-    console.log('Reset Link Sent to:', data.email);
     router.push('/(auth)/check-email');
   };
 

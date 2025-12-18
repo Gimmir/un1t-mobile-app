@@ -77,11 +77,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
 const styles = StyleSheet.create({
   datePicker: {
-    backgroundColor: '#1C1C1E',
-    paddingTop: 10,
-    paddingBottom: 12,
-    paddingHorizontal: 12,
-    marginBottom: 4,
+    backgroundColor: 'transparent',
+    paddingTop: 14,
+    paddingBottom: 14,
+    paddingHorizontal: 16,
   },
   dateHeader: {
     flexDirection: 'row',

@@ -1,70 +1,41 @@
-import type { BaseEntity, ID, Ref } from './common';
-import type { User } from './user';
-import type { Workout } from './workout';
-import type { Timer } from './timer';
-import type { Exercise } from './exercise';
-import type { Booking } from './booking';
+import type { BaseEntity, ID } from './common';
 import type { Studio } from './studio';
-import type { Schedule } from './schedule';
+import type { User } from './user';
 
-export type EventStatus = 'active' | 'cancelled' | 'finished' | 'full';
+export const EVENT_STATUSES = ['active', 'cancelled', 'finished', 'full'] as const;
+export type EventStatus = (typeof EVENT_STATUSES)[number];
 
 export interface Event extends BaseEntity {
-  creator: Ref<User>;
-  studio: Ref<Studio>;
-  schedule: Ref<Schedule>;
-
-  status: EventStatus;
-  title: string;
-  description: string;
-
-  startTime: string; // ISO
-  endTime: string;   // ISO
-  duration?: number;
-  clientsLimit?: number;
-
-  // refs
-  coach: Ref<User>;
-  workout: Ref<Workout>;
-  timer?: Ref<Timer>;
-  exercises: (ID | Exercise)[];
-  bookings: (ID | Booking)[];
-  leaderboard?: ID | null;
-}
-
-/** Payloads you send from FE */
-export interface EventCreateDTO {
-  creator?: ID;
-  studio: ID;
+  // Backend fields (actual API response)
+  title: string;                    // Real field from backend
+  description?: string;
+  
+  startTime: string;                // Real field from backend (camelCase, ISO string)
+  endTime: string;                  // Real field from backend (camelCase, ISO string)
+  
+  creator: ID;
+  studio: ID;                       // Studio ID - use useStudio(event.studio) to get full data
   schedule: ID;
-
-  status?: EventStatus;
-  title: string;
-  description?: string;
-
-  startTime: string;
-  endTime: string;
-  duration?: number;
-  clientsLimit?: number;
-
-  coach: ID;
-  workout: ID;
-  timer?: ID | null;
-  exercises: ID[];
-}
-
-export interface EventUpdateDTO {
-  status?: EventStatus;
-  title?: string;
-  description?: string;
-
-  startTime?: string;
-  endTime?: string;
-  duration?: number;
-  clientsLimit?: number;
-
-  coach?: ID;
+  status: EventStatus;
+  
+  coach: ID;                        // Coach ID - use useUser(event.coach) to get full User with role='coach'
   workout?: ID;
-  timer?: ID | null;
-  exercises?: ID[];
+  timer?: ID;
+  timerTemplate?: ID;
+  bookings?: ID[];
+  
+  // Optional fields that might be added later or populated
+  duration?: number;                // minutes (calculated from startTime/endTime)
+  tags?: string[];                  // might not exist yet
+  credit_cost?: number;             // might not exist yet
+  
+  // Normalized fields for frontend compatibility (added by normalizeEvent)
+  name?: string;                    // Normalized from title
+  start_time?: string;              // Normalized from startTime
+  end_time?: string;                // Normalized from endTime
+  
+  // These are NOT in API response by default - need to fetch separately or populated
+  instructor?: User;                // Fetch via useUser(event.coach) - full User object with role='coach'
+  location?: Studio;                // Fetch via useStudio(event.studio) - full Studio object
 }
+

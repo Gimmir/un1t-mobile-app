@@ -6,19 +6,19 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
-    Alert,
-    Animated,
-    Dimensions,
-    FlatList,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View
+  Alert,
+  Animated,
+  Dimensions,
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as z from 'zod';
@@ -166,7 +166,6 @@ export default function SignUpStep3Screen() {
 
   // --- ЛОГІКА НАВІГАЦІЇ (ВИПРАВЛЕНО) ---
   const onSubmit = (data: Step3FormData) => {
-    console.log("Step 3 (Next of Kin) Data:", data);
     // Перехід на фінальний крок (Sign Waiver)
     router.push('/(auth)/sign-up-step-4'); 
   };
@@ -210,13 +209,12 @@ export default function SignUpStep3Screen() {
         Alert.alert("Permission denied", "We need permission to access your contacts.");
       }
     } catch (e) {
-      console.log(e);
       Alert.alert("Error", "Failed to load contacts.");
     }
   };
 
-  const handleSelectContact = (contact: any) => {
-    const number = contact.phoneNumbers[0]?.number;
+  const handleSelectContact = (contact: { phoneNumbers?: Array<{ number?: string }>; firstName?: string; lastName?: string }) => {
+    const number = contact.phoneNumbers?.[0]?.number;
     
     if (number) {
         setValue('nokPhoneNumber', number, { shouldValidate: true });

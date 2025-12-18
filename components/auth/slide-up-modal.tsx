@@ -1,19 +1,19 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    Dimensions,
-    FlatList,
-    ListRenderItem,
-    Modal,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Animated,
+  Dimensions,
+  FlatList,
+  ListRenderItem,
+  Modal,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 
-interface SlideUpModalProps<T> {
+interface SlideUpModalProps<T extends { id: string | number }> {
   visible: boolean;
   onClose: () => void;
   title: string;
@@ -24,7 +24,7 @@ interface SlideUpModalProps<T> {
   height?: string;
 }
 
-export function SlideUpModal<T>({
+export function SlideUpModal<T extends { id: string | number }>({
   visible,
   onClose,
   title,
@@ -139,7 +139,7 @@ export function SlideUpModal<T>({
           <FlatList
             data={data}
             renderItem={renderItem}
-            keyExtractor={(item: any) => item.id}
+            keyExtractor={(item) => String(item.id)}
             contentContainerStyle={{
               paddingHorizontal: 24,
               paddingTop: searchable ? 10 : 10,

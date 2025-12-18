@@ -2,11 +2,11 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useState } from 'react';
 import { Control, Controller, FieldError, FieldValues, Path } from 'react-hook-form';
 import {
-    Text,
-    TextInput,
-    TextInputProps,
-    TouchableOpacity,
-    View,
+  Text,
+  TextInput,
+  TextInputProps,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface CustomInputProps<T extends FieldValues> extends Omit<TextInputProps, 'value' | 'onChangeText'> {

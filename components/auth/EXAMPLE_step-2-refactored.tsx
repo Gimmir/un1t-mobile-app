@@ -2,9 +2,9 @@
 // Це демонстраційний файл, що показує як мають виглядати Steps 2-4
 
 import {
-    AuthLayout,
-    CustomInput,
-    PrimaryButton,
+  AuthLayout,
+  CustomInput,
+  PrimaryButton,
 } from '@/components/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -49,7 +49,6 @@ export default function SignUpStep2Screen() {
   });
 
   const onSubmit = (data: Step2FormData) => {
-    console.log("Step 2 Data:", data);
     router.push('/(auth)/sign-up-step-3');
   };
 

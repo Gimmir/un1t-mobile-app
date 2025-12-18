@@ -1,3 +1,4 @@
+import { useAuth } from '@/src/features/auth/hooks/use-auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
@@ -12,7 +13,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '@/src/features/auth/hooks/use-auth';
 
 const QUICK_STATS = [
   { label: 'CREDITS', value: '12', sublabel: 'remaining' },

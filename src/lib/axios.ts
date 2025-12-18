@@ -46,6 +46,8 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const status = error.response?.status;
     const url = error.config?.url || '';
+    const headers = (error.config as any)?.headers ?? {};
+    const hadAuthHeader = Boolean(headers?.Authorization || headers?.authorization);
     
     // Don't auto-logout on 401 for login/register endpoints
     const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register');
@@ -68,6 +70,10 @@ apiClient.interceptors.response.use(
       if (isAuthEndpoint) {
         // For login/register, return user-friendly message
         return Promise.reject(new Error(serverMessage || 'Invalid email or password. Please try again.'));
+      } else if (!hadAuthHeader) {
+        // If we didn't send an auth header, don't clear storage or force navigation.
+        // This prevents race conditions on app start while token is still being restored.
+        return Promise.reject(new Error(serverMessage || 'Authentication required.'));
       } else {
         // For other endpoints, auto logout
         await storageUtils.clearAll();

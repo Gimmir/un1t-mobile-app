@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   creditBadge: {
-    color: '#22C55E',
+    color: '#34D399',
     fontWeight: '700',
     letterSpacing: 1,
     fontSize: 14,

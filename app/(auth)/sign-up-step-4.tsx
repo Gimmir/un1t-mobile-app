@@ -28,9 +28,6 @@ export default function SignUpStep4Screen() {
   });
 
   const onSubmit = (data: Step4FormData) => {
-    console.log('FINAL STEP DATA:', data);
-    console.log('--- REGISTRATION COMPLETE ---');
-
     Alert.alert('Welcome to UN1T!', 'Your account has been successfully created.', [
       { text: "Let's Go", onPress: () => router.replace('/(tabs)') },
     ]);

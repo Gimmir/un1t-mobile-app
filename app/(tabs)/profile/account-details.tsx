@@ -1,5 +1,3 @@
-import { useAuth } from '@/src/features/auth/hooks/use-auth';
-import { useUpdateProfile } from '@/src/features/profile/hooks/use-update-profile';
 import { AccountDetailsHeader } from '@/components/profile/account-details/AccountDetailsHeader';
 import { CountryPickerModal } from '@/components/profile/account-details/CountryPickerModal';
 import { DetailSectionCard } from '@/components/profile/account-details/DetailSectionCard';
@@ -7,6 +5,8 @@ import { DobPickerModal } from '@/components/profile/account-details/DobPickerMo
 import { formatCountry, formatDob, maxDobDate, parseDob, resolveCountryCode } from '@/components/profile/account-details/account-details.utils';
 import { buildUpdateProfilePayload } from '@/components/profile/account-details/build-update-profile-payload';
 import type { DetailSection, FormKey, FormValues } from '@/components/profile/account-details/types';
+import { useAuth } from '@/src/features/auth/hooks/use-auth';
+import { useUpdateProfile } from '@/src/features/profile/hooks/use-update-profile';
 import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -17,8 +17,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -26,14 +25,14 @@ export default function AccountDetailsScreen() {
   const router = useRouter();
   const { data: user } = useAuth();
   const { mutate: updateProfile, isPending } = useUpdateProfile();
-  const userId = (user as any)?.id ?? (user as any)?._id ?? '';
+  const userId = user?._id ?? '';
   const canEdit = Boolean(userId);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
 
   const rawFirstName = user?.firstName ?? '';
   const rawLastName = user?.lastName ?? '';
-  const rawEmail = (user as any)?.email ?? '';
+  const rawEmail = user?.email ?? '';
   const rawDob = (user as any)?.birthday || (user as any)?.dob || '';
   const rawPhone =
     (user as any)?.phone ||

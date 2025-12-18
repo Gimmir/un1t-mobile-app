@@ -59,7 +59,7 @@ export default function SignUpScreen() {
   const selectedStudio = watch('homeStudio');
 
   const onSubmit = (data: SignUpFormData) => {
-    console.log("Form Data:", data);
+
     router.push('/(auth)/sign-up-step-2');
   };
 

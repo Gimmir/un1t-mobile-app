@@ -1,9 +1,9 @@
-import { useMutate, useFetch } from '@/src/hooks/useFetch';
+import { useFetch, useMutate } from '@/src/hooks/useFetch';
+import { api } from '@/src/lib/axios';
 import { StorageKeys, storageUtils } from '@/src/lib/storage';
 import { LoginRequest, LoginResponse, User } from '@/src/types/api';
 import { router } from 'expo-router';
 import { authApi } from '../api/auth.api';
-import { api } from '@/src/lib/axios';
 
 /**
  * Hook to get current user profile
@@ -14,12 +14,7 @@ export function useAuth() {
     ['user', 'me'],
     async () => {
       const response = await api.get<any>('/users/me');
-      console.log('📱 useAuth response:', JSON.stringify(response, null, 2));
-      
-      // Backend може повертати { data: user } або просто user
       const userData = response?.data || response;
-      console.log('👤 User data:', userData);
-      
       return userData;
     },
     {
@@ -43,7 +38,6 @@ export function useLogin() {
     (credentials) => authApi.login(credentials),
     {
       onSuccess: async (response) => {
-        // Backend returns { success: true, data: { user, token } }
         const data = response.data || response;
         
         // Handle flexible token naming (token or accessToken)
@@ -52,7 +46,6 @@ export function useLogin() {
         
         if (!authToken) {
           console.error('No token received from backend');
-          console.error('Response:', JSON.stringify(response, null, 2));
           return;
         }
         
@@ -62,13 +55,9 @@ export function useLogin() {
         if (user) {
           await storageUtils.setObject(StorageKeys.USER_DATA, user);
         }
-        
-        
-        console.log('Login successful, token stored');
       },
       onError: (error) => {
         console.error('Login failed:', error.message);
-        // Error will be handled in the component
       },
     }
   );
