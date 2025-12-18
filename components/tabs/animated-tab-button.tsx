@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import Animated, {
     Easing,
     useAnimatedStyle,
@@ -42,8 +43,13 @@ export const AnimatedTabButton: React.FC<AnimatedTabButtonProps> = ({
   const buttonStyle = isProfile ? styles.profileTabButton : styles.defaultTabButton;
   const contentColor = focused ? '#FFFFFF' : '#A1A1AA';
 
+  const handlePress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  }, [onPress]);
+
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={buttonStyle}>
+    <TouchableOpacity onPress={handlePress} activeOpacity={0.7} style={buttonStyle}>
       <Animated.View style={[styles.animatedFocusBackgroundV3, animatedBackgroundStyle]} />
 
       <View style={styles.tabContentWrapperV2}>

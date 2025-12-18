@@ -15,5 +15,8 @@
     "expo-env.d.ts",
     "nativewind-env.d.ts",
     "svg.d.ts"
+  ],
+  "exclude": [
+    "app/(tabs)/index 2.tsx"
   ]
 }

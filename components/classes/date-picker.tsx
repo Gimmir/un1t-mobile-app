@@ -78,21 +78,21 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 const styles = StyleSheet.create({
   datePicker: {
     backgroundColor: '#1C1C1E',
-    paddingTop: 16,
-    paddingBottom: 20,
-    paddingHorizontal: 16,
-    marginBottom: 8,
+    paddingTop: 10,
+    paddingBottom: 12,
+    paddingHorizontal: 12,
+    marginBottom: 4,
   },
   dateHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   monthYear: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: '#FFFFFF',
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
 });

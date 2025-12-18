@@ -4,115 +4,129 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { HexagonAvatar } from './hexagon-avatar';
 import { ClassItem } from './types';
 
-export const ClassCard: React.FC<ClassItem> = ({ time, name, trainer, status, avatar }) => {
-  const renderAvatar = () => {
-    return (
-      <View style={styles.hexagonWrapper}>
-        <HexagonAvatar uri={avatar} size={40} isIcon={status === 'FULL'} />
-      </View>
-    );
-  };
+const STATUS_STYLES = {
+  AVAILABLE: {
+    label: 'Spots open',
+    textColor: '#34D399',
+    backgroundColor: 'rgba(52, 211, 153, 0.15)',
+    accentColor: '#34D399',
+  },
+  WAITLIST: {
+    label: 'Waitlist',
+    textColor: '#FACC15',
+    backgroundColor: 'rgba(250, 204, 21, 0.15)',
+    accentColor: '#FACC15',
+  },
+  FULL: {
+    label: 'Class full',
+    textColor: '#F87171',
+    backgroundColor: 'rgba(248, 113, 113, 0.18)',
+    accentColor: '#F87171',
+  },
+} as const;
 
-  const renderBadge = () => {
-    if (status === 'WAITLIST') {
-      return (
-        <View style={styles.badgeWaitlist}>
-          <Text style={styles.badgeText}>WAITLIST</Text>
-        </View>
-      );
-    }
-    if (status === 'FULL') {
-      return (
-        <View style={styles.badgeFull}>
-          <Text style={styles.badgeText}>CLASS IS FULL</Text>
-        </View>
-      );
-    }
-    return null;
-  };
+export const ClassCard: React.FC<ClassItem> = ({ time, name, trainer, status, avatar }) => {
+  const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES.AVAILABLE;
 
   return (
-    <>
-      <TouchableOpacity style={styles.classCard}>
-        <Text style={styles.classTime}>{time}</Text>
-
-        <View style={styles.classInfo}>
-          <Text style={styles.className}>{name}</Text>
-          <View style={styles.trainerRow}>
-            {renderAvatar()}
-            <Text style={styles.trainerName}>{trainer}</Text>
+    <TouchableOpacity activeOpacity={0.92} style={styles.touchTarget}>
+      <View style={[styles.accent, { backgroundColor: statusStyle.accentColor }]} />
+      <View style={styles.cardBody}>
+        <View style={styles.headerRow}>
+          <Text style={styles.classTime}>{time}</Text>
+          <View style={[styles.statusBadge, { backgroundColor: statusStyle.backgroundColor }]}>
+            <Text style={[styles.statusText, { color: statusStyle.textColor }]}>
+              {statusStyle.label}
+            </Text>
           </View>
-          {renderBadge()}
         </View>
 
-        <Ionicons name="chevron-forward" size={24} color="#52525B" />
-      </TouchableOpacity>
+        <Text style={styles.className}>{name}</Text>
 
-      <View style={styles.divider} />
-    </>
+        <View style={styles.footerRow}>
+          <View style={styles.trainerCard}>
+            <HexagonAvatar uri={avatar} size={40} isIcon={status === 'FULL'} />
+            <View>
+              <Text style={styles.trainerLabel}>Coach</Text>
+              <Text style={styles.trainerName}>{trainer}</Text>
+            </View>
+          </View>
+
+          <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  classCard: {
+  touchTarget: {
     flexDirection: 'row',
+    alignItems: 'stretch',
+    marginBottom: 10,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#1F1F23',
+    backgroundColor: '#101012',
+    overflow: 'hidden',
+  },
+  accent: {
+    width: 4,
+  },
+  cardBody: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 24,
+    marginBottom: 8,
   },
   classTime: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     color: '#FFFFFF',
-    width: 60,
+    letterSpacing: 0.6,
   },
-  classInfo: {
-    flex: 1,
-    marginLeft: 12,
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   className: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 8,
-    letterSpacing: 0.3,
-  },
-  trainerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    letterSpacing: 0.6,
     marginBottom: 6,
   },
-  hexagonWrapper: {
-    marginRight: 12,
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  trainerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  trainerLabel: {
+    fontSize: 12,
+    color: '#A1A1AA',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   trainerName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#A1A1AA',
-  },
-  badgeWaitlist: {
-    backgroundColor: '#27272A',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-  },
-  badgeFull: {
-    backgroundColor: '#DC2626',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-  },
-  badgeText: {
-    fontSize: 10,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#27272A',
-    marginHorizontal: 16,
+    color: '#E4E4E7',
   },
 });

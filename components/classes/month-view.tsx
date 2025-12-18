@@ -28,7 +28,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
         {
           maxHeight: calendarHeight.interpolate({
             inputRange: [0, 1],
-            outputRange: [0, 400],
+            outputRange: [0, 320],
           }),
           opacity: calendarHeight,
         },
@@ -92,19 +92,19 @@ const styles = StyleSheet.create({
   calendarWeekHeader: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 12,
-    marginTop: 12,
+    marginBottom: 6,
+    marginTop: 6,
   },
   calendarWeekDay: {
     width: '14.28%',
     textAlign: 'center',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
     color: '#71717A',
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
   },
   calendarGrid: {
-    gap: 8,
+    gap: 6,
   },
   calendarWeek: {
     flexDirection: 'row',
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
+    borderRadius: 6,
     position: 'relative',
   },
   calendarDaySelected: {
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     borderColor: '#71717A',
   },
   calendarDayText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
   },

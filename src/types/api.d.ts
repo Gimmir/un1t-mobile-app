@@ -124,7 +124,21 @@ export interface UpdateProfileRequest {
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
+  phone?: string;
   avatarUrl?: string;
+  email?: string;
+  birthday?: string;
+  dob?: string;
+  address?: string;
+  city?: string;
+  postCode?: string;
+  postcode?: string;
+  country?: string;
+  nextOfKin?: {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  };
 }
 
 /**

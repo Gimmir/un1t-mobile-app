@@ -12,10 +12,16 @@ export const profileApi = {
     api.get<User>('/profile'),
 
   /**
-   * Update user profile
+   * Update user profile by ID
    */
-  updateProfile: (data: UpdateProfileRequest) => 
-    api.patch<User>('/profile', data),
+  updateProfile: async (userId: string, data: UpdateProfileRequest) => {
+    const response = await api.put<{ data?: User } | User>(`/users/${userId}`, data);
+    const payload = (response as any)?.data;
+    if (payload?.data) {
+      return payload.data;
+    }
+    return payload ?? (response as any);
+  },
 
   /**
    * Upload avatar image

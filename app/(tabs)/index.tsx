@@ -1,14 +1,30 @@
 import {
-  ChallengesSection,
-  NextClassCard,
-  PerformanceSection,
-  PowerCard,
+  CreditSummaryCard,
+  HomeHero,
+  HomeImageCard,
+  HomeTopBackground,
+  NextClassPanel,
+  PowerPanel,
+  SnapCarouselSection,
 } from '@/components/home';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
-import { Image, ScrollView, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/src/features/auth/hooks/use-auth';
+import { StatusBar } from 'expo-status-bar';
+import React, { useMemo } from 'react';
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const CREDIT_SUMMARY = {
+  remaining: 15,
+  total: 20,
+  expires: '30.08.2020',
+};
+
+const UPCOMING_CLASS = {
+  program: 'TROOPER',
+  date: 'SEP 30',
+  time: '9.00 AM',
+  location: 'LONDON BRIDGE',
+};
 
 const CHALLENGES = [
   {
@@ -43,61 +59,109 @@ const PERFORMANCE = [
   },
 ];
 
-export default function HomeScreen() {
-  const { data: user, isLoading, error } = useAuth();
-  
-  // Debug logging
-  console.log('🏠 Home Screen - isLoading:', isLoading);
-  console.log('🏠 Home Screen - user:', user);
-  console.log('🏠 Home Screen - firstName:', user?.firstName);
-  console.log('🏠 Home Screen - error:', error);
+const SLIDE_OUTER_MARGIN = 20;
+const SLIDE_PREVIEW = 40;
+const SLIDE_SPACING = 12;
 
-  const handleNextClassPress = () => {
-    console.log('Next Class Pressed!');
-  };
+export default function HomeScreen() {
+  const { data: user, isLoading } = useAuth();
+  const { width: screenWidth } = useWindowDimensions();
+
+  const welcomeText = user?.firstName
+    ? `WELCOME BACK, ${user.firstName.toUpperCase()}`
+    : 'WELCOME BACK';
+
+  const carouselLayout = useMemo(() => {
+    const itemWidth = Math.max(240, screenWidth - SLIDE_OUTER_MARGIN * 2 - SLIDE_PREVIEW);
+    const snapInterval = itemWidth + SLIDE_SPACING;
+    return { itemWidth, snapInterval };
+  }, [screenWidth]);
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      <View style={styles.textureWrapper}>
-        <Image
-          source={require('@/assets/images/home-top-texture.png')}
-          style={styles.textureImage}
-          resizeMode="cover"
-        />
-        <LinearGradient colors={['transparent', '#191919']} style={styles.gradientOverlay} />
-      </View>
+      <HomeTopBackground />
 
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <ScrollView
           style={{ flex: 1 }}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 150 }}
+          contentContainerStyle={styles.scrollContent}
         >
-          <View style={styles.headerContainer}>
-            {isLoading ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <Text style={styles.headerText}>
-                WELCOME BACK{user?.firstName ? `, ${user.firstName.toUpperCase()}` : ''}
-              </Text>
-            )}
-          </View>
-
-          <PowerCard />
-
-          <NextClassCard
-            date="SEP 30"
-            time="9.00 AM"
-            className="TROOPER"
-            location="LONDON BRIDGE"
-            onPress={handleNextClassPress}
+          <HomeHero
+            isLoading={isLoading}
+            title={welcomeText}
+            subtitle={
+              <>
+                UN1T <Text style={styles.heroLocation}>LONDON BRIDGE</Text> • 06:30 — 21:00
+              </>
+            }
           />
 
-          <ChallengesSection challenges={CHALLENGES} />
+          <CreditSummaryCard
+            remaining={CREDIT_SUMMARY.remaining}
+            total={CREDIT_SUMMARY.total}
+            expires={CREDIT_SUMMARY.expires}
+            status="ACTIVE"
+          />
 
-          <PerformanceSection performance={PERFORMANCE} />
+          <PowerPanel />
+
+          <NextClassPanel
+            program={UPCOMING_CLASS.program}
+            date={UPCOMING_CLASS.date}
+            time={UPCOMING_CLASS.time}
+            location={UPCOMING_CLASS.location}
+          />
+
+          <SnapCarouselSection
+            title="CHALLENGES"
+            count={CHALLENGES.length}
+            itemWidth={carouselLayout.itemWidth}
+            outerMargin={SLIDE_OUTER_MARGIN}
+            itemSpacing={SLIDE_SPACING}
+            snapInterval={carouselLayout.snapInterval}
+          >
+            {(itemWidth) =>
+              CHALLENGES.map((challenge) => (
+                <HomeImageCard
+                  key={challenge.id}
+                  width={itemWidth}
+                  imageUri={challenge.image}
+                  title={challenge.title}
+                  metaText={challenge.subtitle}
+                  metaIcon="star"
+                  metaIconLibrary="Ionicons"
+                  badgeText={challenge.badge}
+                />
+              ))
+            }
+          </SnapCarouselSection>
+
+          <SnapCarouselSection
+            title="PERFORMANCE"
+            count={PERFORMANCE.length}
+            itemWidth={carouselLayout.itemWidth}
+            outerMargin={SLIDE_OUTER_MARGIN}
+            itemSpacing={SLIDE_SPACING}
+            snapInterval={carouselLayout.snapInterval}
+          >
+            {(itemWidth) =>
+              PERFORMANCE.map((item) => (
+                <HomeImageCard
+                  key={item.id}
+                  width={itemWidth}
+                  imageUri={item.image}
+                  title={item.title}
+                  metaText={item.date}
+                  metaIcon="time"
+                  metaIconLibrary="Ionicons"
+                  secondaryText={item.value}
+                />
+              ))
+            }
+          </SnapCarouselSection>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -109,36 +173,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#191919',
   },
-  textureWrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 400,
-    opacity: 0.6,
+  scrollContent: {
+    paddingBottom: 140,
   },
-  textureImage: {
-    width: '100%',
-    height: '100%',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 250,
-  },
-  headerContainer: {
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 30,
-    minHeight: 24, // Prevents layout shift during loading
-  },
-  headerText: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 16,
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
+  heroLocation: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    letterSpacing: 1,
   },
 });
