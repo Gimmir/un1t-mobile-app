@@ -17,6 +17,7 @@
     "svg.d.ts"
   ],
   "exclude": [
-    "app/(tabs)/index 2.tsx"
+    "app/(tabs)/index 2.tsx",
+    "backups"
   ]
 }

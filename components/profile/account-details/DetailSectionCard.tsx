@@ -37,10 +37,10 @@ export function DetailSectionCard(props: {
 
 const styles = StyleSheet.create({
   section: {
-    marginBottom: 22,
+    marginBottom: 18,
   },
   sectionTitle: {
-    paddingHorizontal: 16,
+    marginHorizontal: 16,
     marginBottom: 10,
     color: '#6B7280',
     fontSize: 12,
@@ -49,12 +49,11 @@ const styles = StyleSheet.create({
   },
   card: {
     marginHorizontal: 16,
-    backgroundColor: '#1B1B1D',
+    backgroundColor: '#111113',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#2A2A2E',
+    borderColor: '#1C1C1F',
     paddingHorizontal: 16,
     paddingVertical: 6,
   },
 });
-

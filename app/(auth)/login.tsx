@@ -1,13 +1,21 @@
-import { CustomInput, PrimaryButton } from '@/components/auth';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { AuthTextureBackground } from '@/components/auth/auth-texture-background';
+import { LoginForm } from '@/components/auth/login/LoginForm';
+import { LoginTitles, LoginTopBar } from '@/components/auth/login/LoginHeader';
 import { useLogin } from '@/src/features/auth/hooks/use-auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  Animated,
+  Easing,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View
+} from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as z from 'zod';
 
 const loginSchema = z.object({
@@ -24,6 +32,52 @@ export default function LoginScreen() {
   const router = useRouter();
   const { mutate: login, isPending } = useLogin();
   const [serverError, setServerError] = useState<string>('');
+  const insets = useSafeAreaInsets();
+  const cardLift = useRef(new Animated.Value(0)).current;
+  const largeHeaderOpacity = useRef(new Animated.Value(1)).current;
+  const smallHeaderOpacity = useRef(new Animated.Value(0)).current;
+  const formTranslateY = useRef(new Animated.Value(0)).current;
+
+  const animateCard = (toValue: number) => {
+    cardLift.stopAnimation();
+    Animated.timing(cardLift, {
+      toValue,
+      duration: 260,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const animateHeader = useCallback((focused: boolean) => {
+    Animated.parallel([
+      Animated.timing(largeHeaderOpacity, {
+        toValue: focused ? 0 : 1,
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(smallHeaderOpacity, {
+        toValue: focused ? 1 : 0,
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(formTranslateY, {
+        toValue: focused ? -100 : 0,
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [largeHeaderOpacity, smallHeaderOpacity, formTranslateY]);
+
+  const handleInputFocus = useCallback(() => {
+    animateHeader(true);
+  }, [animateHeader]);
+
+  const handleInputBlur = useCallback(() => {
+    animateHeader(false);
+  }, [animateHeader]);
 
   const {
     control,
@@ -41,111 +95,87 @@ export default function LoginScreen() {
   const onSubmit = (data: LoginFormData) => {
     // Clear previous server error
     setServerError('');
+    animateCard(-18);
     
     login(data, {
-      onSuccess: () => {
-        router.replace('/(tabs)');
-      },
       onError: (err) => {
         setServerError(err.message || 'Invalid email or password. Please try again.');
+        animateCard(0);
       },
     });
+  };
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/landing');
   };
 
   const handleForgotPassword = () => {
     router.push('/(auth)/forgot-password');
   };
 
+  const handleSignUp = () => {
+    router.push('/(auth)/sign-up');
+  };
+
+  const scrollBottomPadding = Math.max(insets.bottom, 16) + 18;
+  const combinedFormTranslateY = useMemo(
+    () => Animated.add(cardLift, formTranslateY),
+    [cardLift, formTranslateY]
+  );
+
   return (
-    <View className="flex-1 bg-[#191919]">
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <StatusBar style="light" />
 
-      <SafeAreaView className="flex-1">
-        <View className="px-6 py-2 z-10">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <IconSymbol name="xmark" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+      <AuthTextureBackground height={520} />
 
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="flex-1"
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <LoginTopBar onBack={handleBack} />
+
+        <ScrollView
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          bounces={false}
         >
-          <ScrollView
-            className="flex-1"
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View className="px-5 w-full pb-5">
-              <Text className="text-white text-2xl font-bold mb-10 text-center tracking-wider uppercase">
-                LOGIN
-              </Text>
+            <LoginTitles largeOpacity={largeHeaderOpacity} smallOpacity={smallHeaderOpacity} />
 
-              <View className="gap-4">
-                <CustomInput
-                  control={control}
-                  name="email"
-                  error={errors.email}
-                  placeholder="Email"
-                  type="email"
-                  showClearButton
-                  editable={!isPending}
-                  textContentType="emailAddress" 
-                  autoComplete="email"
-                />
-
-                <View>
-                  <CustomInput
-                    control={control}
-                    name="password"
-                    error={errors.password}
-                    placeholder="Password"
-                    type="password"
-                    editable={!isPending}
-                    textContentType="password" 
-                    autoComplete="password"
-                  />
-                  
-                  {/* Server Error Message - показуємо під паролем */}
-                  {serverError && !errors.password && (
-                    <Text className="text-red-500 text-xs mt-1 ml-1">{serverError}</Text>
-                  )}
-                </View>
-
-                <Text className="text-[#52525b] text-xs leading-4 mt-1">
-                  Must contain at least 8 characters including an uppercase letter, a lowercase
-                  letter and a number.
-                </Text>
-
-                <View className="mt-6">
-                  {isPending ? (
-                    <View className="bg-white/10 rounded-full py-4 items-center justify-center">
-                      <ActivityIndicator size="small" color="#ffffff" />
-                    </View>
-                  ) : (
-                    <PrimaryButton title="LOGIN" onPress={handleSubmit(onSubmit)} disabled={isPending} />
-                  )}
-                </View>
-
-                <TouchableOpacity
-                  onPress={handleForgotPassword}
-                  className="mt-6 items-center"
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Text className="text-white text-sm underline decoration-white">
-                    Forgot password?
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+            <LoginForm
+              control={control}
+              errors={errors}
+              isPending={isPending}
+              serverError={serverError}
+              containerTranslateY={combinedFormTranslateY}
+              onForgotPassword={handleForgotPassword}
+              onSignUp={handleSignUp}
+              onSubmit={handleSubmit(onSubmit)}
+              onInputFocus={handleInputFocus}
+              onInputBlur={handleInputBlur}
+            />
           </ScrollView>
-        </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#191919',
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+  },
+});

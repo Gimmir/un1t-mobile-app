@@ -16,15 +16,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
-  View
+  StyleSheet
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function AccountDetailsScreen() {
   const router = useRouter();
   const { data: user } = useAuth();
   const { mutate: updateProfile, isPending } = useUpdateProfile();
+  const insets = useSafeAreaInsets();
   const userId = user?._id ?? '';
   const canEdit = Boolean(userId);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -54,12 +54,10 @@ export default function AccountDetailsScreen() {
   const firstName = rawFirstName || '';
   const lastName = rawLastName || '';
   const email = rawEmail || '';
-  const dob = formatDob(rawDob);
   const phone = rawPhone || '';
   const addressLine1 = rawAddressLine1 || '';
   const city = rawCity || '';
   const postCode = rawPostCode || '';
-  const country = resolvedCountryCode ? formatCountry(resolvedCountryCode) : '';
 
   const nextOfKin = useMemo(() => {
     return {
@@ -107,12 +105,12 @@ export default function AccountDetailsScreen() {
     setFormValues(initialFormValues);
   }, [initialFormValues]);
 
+  const dobDisplay = useMemo(() => formatDob(formValues.dob || rawDob), [formValues.dob, rawDob]);
+
   const countryDisplay = useMemo(() => {
-    if (formValues.country) {
-      return formatCountry(formValues.country);
-    }
-    return country;
-  }, [country, formValues.country]);
+    const effective = formValues.country || resolvedCountryCode;
+    return effective ? formatCountry(effective) : '';
+  }, [formValues.country, resolvedCountryCode]);
 
   const handleInputChange = (key: FormKey, value: string) => {
     setFormValues((prev) => ({ ...prev, [key]: value }));
@@ -176,10 +174,10 @@ export default function AccountDetailsScreen() {
           setIsEditing(false);
         },
         onError: (error) => {
-        const message =
-          (error.response?.data as any)?.message ||
-          error.message ||
-          'Unable to update account details';
+          const message =
+            (error.response?.data as any)?.message ||
+            error.message ||
+            'Unable to update account details';
           Alert.alert('Error', message);
         },
       }
@@ -227,7 +225,7 @@ export default function AccountDetailsScreen() {
           {
             key: 'firstName',
             label: 'First name',
-            value: firstName,
+            value: formValues.firstName || firstName,
             formKey: 'firstName',
             autoCapitalize: 'words',
             autoComplete: 'given-name',
@@ -236,7 +234,7 @@ export default function AccountDetailsScreen() {
           {
             key: 'lastName',
             label: 'Last name',
-            value: lastName,
+            value: formValues.lastName || lastName,
             formKey: 'lastName',
             autoCapitalize: 'words',
             autoComplete: 'family-name',
@@ -245,7 +243,7 @@ export default function AccountDetailsScreen() {
           {
             key: 'email',
             label: 'Email Address',
-            value: email,
+            value: formValues.email || email,
             valueNumberOfLines: 1,
             valueEllipsizeMode: 'middle',
             formKey: 'email',
@@ -258,9 +256,9 @@ export default function AccountDetailsScreen() {
           {
             key: 'dob',
             label: 'DOB',
-            value: dob,
+            value: dobDisplay,
             formKey: 'dob',
-            placeholder: 'YYYY-MM-DD',
+            placeholder: 'DD/MM/YYYY',
             autoCapitalize: 'none',
             isDate: true,
           },
@@ -273,7 +271,7 @@ export default function AccountDetailsScreen() {
           {
             key: 'phone',
             label: 'Phone',
-            value: phone,
+            value: formValues.phone || phone,
             formKey: 'phone',
             keyboardType: 'phone-pad',
             autoComplete: 'tel',
@@ -282,7 +280,7 @@ export default function AccountDetailsScreen() {
           {
             key: 'addressLine1',
             label: 'Address',
-            value: addressLine1,
+            value: formValues.addressLine1 || addressLine1,
             formKey: 'addressLine1',
             multiline: true,
             autoCapitalize: 'words',
@@ -292,7 +290,7 @@ export default function AccountDetailsScreen() {
           {
             key: 'city',
             label: 'City',
-            value: city,
+            value: formValues.city || city,
             formKey: 'city',
             autoCapitalize: 'words',
             autoComplete: 'street-address',
@@ -301,7 +299,7 @@ export default function AccountDetailsScreen() {
           {
             key: 'postCode',
             label: 'Post code',
-            value: postCode,
+            value: formValues.postCode || postCode,
             formKey: 'postCode',
             autoCapitalize: 'characters',
             autoComplete: 'postal-code',
@@ -313,7 +311,7 @@ export default function AccountDetailsScreen() {
             value: countryDisplay,
             formKey: 'country',
             autoCapitalize: 'characters',
-            placeholder: 'e.g. UA or Ukraine',
+            placeholder: 'Select country',
             isCountry: true,
           },
         ],
@@ -325,107 +323,115 @@ export default function AccountDetailsScreen() {
           {
             key: 'nokFirstName',
             label: 'First name',
-            value: nextOfKin.firstName,
+            value: formValues.nextOfKinFirstName || nextOfKin.firstName,
             formKey: 'nextOfKinFirstName',
             autoCapitalize: 'words',
           },
           {
             key: 'nokLastName',
             label: 'Last name',
-            value: nextOfKin.lastName,
+            value: formValues.nextOfKinLastName || nextOfKin.lastName,
             formKey: 'nextOfKinLastName',
             autoCapitalize: 'words',
           },
           {
             key: 'nokPhone',
             label: 'Phone',
-            value: nextOfKin.phone,
+            value: formValues.nextOfKinPhone || nextOfKin.phone,
             formKey: 'nextOfKinPhone',
             keyboardType: 'phone-pad',
           },
         ],
       },
     ],
-    [addressLine1, city, countryDisplay, dob, email, firstName, lastName, nextOfKin, phone, postCode]
+    [
+      addressLine1,
+      city,
+      countryDisplay,
+      dobDisplay,
+      email,
+      firstName,
+      formValues,
+      lastName,
+      nextOfKin,
+      phone,
+      postCode,
+    ]
   );
+
+  const scrollBottomPadding = Math.max(insets.bottom, 16) + 80;
 
   return (
-    <>
-      <View style={styles.container}>
-        <StatusBar style="light" />
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar style="light" />
 
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <AccountDetailsHeader
-          title="ACCOUNT DETAILS"
-          isEditing={isEditing}
-          canEdit={canEdit}
-          isSaving={isPending}
-          onBack={() => router.back()}
-          onCancel={handleCancelEdit}
-          onEdit={handleEditPress}
-          onSave={handleSave}
-        />
+      <AccountDetailsHeader
+        title="ACCOUNT DETAILS"
+        isEditing={isEditing}
+        canEdit={canEdit}
+        isSaving={isPending}
+        onBack={() => router.back()}
+        onCancel={handleCancelEdit}
+        onEdit={handleEditPress}
+        onSave={handleSave}
+      />
 
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={{ flex: 1 }}
-          keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
         >
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            {sections.map((section) => (
-              <DetailSectionCard
-                key={section.key}
-                section={section}
-                isEditing={isEditing}
-                formValues={formValues}
-                onChange={handleInputChange}
-                onDobPress={handleDobPress}
-                onCountryPress={handleCountryPress}
-              />
-            ))}
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </View>
+          {sections.map((section) => (
+            <DetailSectionCard
+              key={section.key}
+              section={section}
+              isEditing={isEditing}
+              formValues={formValues}
+              onChange={handleInputChange}
+              onDobPress={handleDobPress}
+              onCountryPress={handleCountryPress}
+            />
+          ))}
+        </ScrollView>
+      </KeyboardAvoidingView>
 
-    <DobPickerModal
-      visible={isEditing && showDatePicker}
-      value={dobDate || maxDobDate}
-      maximumDate={maxDobDate}
-      onChange={handleDateChange}
-      onClose={() => setShowDatePicker(false)}
-    />
+      <DobPickerModal
+        visible={isEditing && showDatePicker}
+        value={dobDate || maxDobDate}
+        maximumDate={maxDobDate}
+        onChange={handleDateChange}
+        onClose={() => setShowDatePicker(false)}
+      />
 
-    <CountryPickerModal
-      visible={isEditing && showCountryPicker}
-      selectedCode={formValues.country || resolvedCountryCode}
-      onSelect={handleCountrySelect}
-      onClose={handleCountryPickerClose}
-    />
-    </>
+      <CountryPickerModal
+        visible={isEditing && showCountryPicker}
+        selectedCode={formValues.country || resolvedCountryCode}
+        onSelect={handleCountrySelect}
+        onClose={handleCountryPickerClose}
+      />
+    </SafeAreaView>
   );
 }
-
-const KEYBOARD_VERTICAL_OFFSET = Platform.OS === 'ios' ? 60 : 0;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#191919',
   },
-  safeArea: {
+  keyboardView: {
     flex: 1,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 10,
-    paddingBottom: 40,
+    paddingTop: 12,
   },
 });

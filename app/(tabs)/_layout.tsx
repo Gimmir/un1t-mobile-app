@@ -11,6 +11,7 @@ export default function TabLayout() {
         tabBar={(props) => <SplitTabBar {...props} />}
         screenOptions={{
           headerShown: false,
+          sceneStyle: { backgroundColor: '#191919' },
           tabBarStyle: {
             position: 'absolute',
             backgroundColor: 'transparent',

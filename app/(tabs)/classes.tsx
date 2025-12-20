@@ -165,6 +165,12 @@ export default function ClassesScreen() {
           selectedStudioId={selectedStudioId}
           onSelectStudio={setSelectedStudioId}
           isLoading={studiosLoading}
+          onSchedulePress={() =>
+            router.push({
+              pathname: '/my-schedule',
+              params: { returnTo: '/classes' },
+            })
+          }
         />
 
         <GestureDetector gesture={swipeGesture}>
@@ -201,7 +207,9 @@ export default function ClassesScreen() {
               refreshing={refreshing}
               onRefresh={onRefresh}
               tintColor="#FFFFFF"
+              titleColor="#FFFFFF"
               colors={['#FFFFFF']}
+              progressBackgroundColor="transparent"
             />
           }
         >
@@ -231,7 +239,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerBlock: {
-    marginTop: 10,
+    marginTop: 0,
   },
   datePickerCard: {
     marginHorizontal: 16,

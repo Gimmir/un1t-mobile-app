@@ -12,7 +12,7 @@ export const Header: React.FC = () => {
 const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   headerTitle: {
     fontSize: 16,

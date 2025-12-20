@@ -78,7 +78,29 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName: string;
+  role?: string;
   phoneNumber?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postcode?: string;
+  postCode?: string;
+  country?: string;
+  birthday?: string;
+  dob?: string;
+  language?: string;
+  languageId?: string;
+  studio?: string;
+  studioId?: string;
+  homeStudio?: string;
+  nextOfKin?: {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  };
+  marketing?: boolean;
+  gender?: string;
+  measurement?: string;
 }
 
 export interface ResetPasswordRequest {
@@ -87,6 +109,11 @@ export interface ResetPasswordRequest {
 
 export interface ConfirmResetPasswordRequest {
   token: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
   newPassword: string;
 }
 

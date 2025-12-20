@@ -16,6 +16,7 @@ type IconSymbolName = keyof typeof MAPPING;
 const MAPPING = {
   'house.fill': 'home',
   'paperplane.fill': 'send',
+  'chevron.left': 'chevron-left',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
   'xmark': 'close',
@@ -24,6 +25,8 @@ const MAPPING = {
   'chevron.down': 'keyboard-arrow-down',
   'checkmark': 'check',
   'magnifyingglass': 'search',
+  'envelope': 'email',
+  'lock': 'lock',
 } as IconMapping;
 
 /**
@@ -43,5 +46,6 @@ export function IconSymbol({
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
 }) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+  const mappedName = (MAPPING as Record<string, ComponentProps<typeof MaterialIcons>['name']>)[name] ?? 'help-outline';
+  return <MaterialIcons color={color} size={size} name={mappedName} style={style} />;
 }

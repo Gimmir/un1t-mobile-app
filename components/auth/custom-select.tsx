@@ -8,6 +8,7 @@ interface CustomSelectProps<T extends FieldValues> {
   error?: FieldError;
   placeholder: string;
   onPress: () => void;
+  formatValue?: (value: string) => string;
 }
 
 export function CustomSelect<T extends FieldValues>({
@@ -16,11 +17,12 @@ export function CustomSelect<T extends FieldValues>({
   error,
   placeholder,
   onPress,
+  formatValue,
 }: CustomSelectProps<T>) {
   const getBorderStyle = (hasError: boolean, value: string) => {
-    if (hasError) return 'border-b border-red-500';
-    if (value) return 'border-b border-white';
-    return 'border-b border-transparent';
+    if (hasError) return 'border border-red-500';
+    if (value && value.length > 0) return 'border border-white/20';
+    return 'border border-[#1C1C1F]';
   };
 
   return (
@@ -31,15 +33,18 @@ export function CustomSelect<T extends FieldValues>({
         <View>
           <TouchableOpacity
             onPress={onPress}
-            className={`bg-[#252525] px-4 flex-row items-center h-[52px] justify-between active:opacity-80 ${getBorderStyle(!!error, value)}`}
+            className={`bg-[#111113] px-4 flex-row items-center h-[52px] rounded-[10px] justify-between active:opacity-80 ${getBorderStyle(
+              !!error,
+              value
+            )}`}
           >
             <Text
-              className={value ? 'text-white' : 'text-[#52525b]'}
+              className={value ? 'text-white' : 'text-[#71717A]'}
               style={{ fontSize: 16 }}
             >
-              {value || placeholder}
+              {value ? (formatValue ? formatValue(value) : value) : placeholder}
             </Text>
-            <IconSymbol name="chevron.down" size={16} color="#52525b" />
+            <IconSymbol name="chevron.down" size={16} color="#71717A" />
           </TouchableOpacity>
           {error && (
             <Text className="text-red-500 text-xs mt-1 ml-1">{error.message}</Text>

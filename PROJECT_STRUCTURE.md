@@ -5,12 +5,29 @@ un1t-mobile-app/
 │
 ├── 📱 app/                                # Expo Router (File-system routing)
 │   ├── _layout.tsx                       # ✅ Root layout with providers
-│   ├── (tabs)/                           # Tab navigation
+│   ├── index.tsx                         # Landing/redirect screen
+│   ├── (auth)/                           # Auth screens (not logged in)
+│   │   ├── _layout.tsx                   # Auth layout
+│   │   ├── login.tsx                     # Login screen
+│   │   ├── sign-up.tsx                   # Sign up - step 1
+│   │   ├── sign-up-step-2.tsx            # Sign up - step 2
+│   │   ├── sign-up-step-3.tsx            # Sign up - step 3
+│   │   ├── sign-up-step-4.tsx            # Sign up - step 4
+│   │   ├── sign-up-step-5.tsx            # Sign up - step 5
+│   │   ├── forgot-password.tsx           # Forgot password
+│   │   └── check-email.tsx               # Check email confirmation
+│   ├── (tabs)/                           # Tab navigation (logged in)
 │   │   ├── _layout.tsx                   # Tab bar configuration
 │   │   ├── index.tsx                     # Home screen
-│   │   └── explore.tsx                   # Explore screen
-│   └── modal.tsx                         # Modal example
-│
+│   │   ├── performance.tsx               # Performance stats screen
+│   │   ├── (classes)/                    # Classes section
+│   │   │   ├── _layout.tsx               # Classes layout
+│   │   │   ├── index.tsx                 # Classes list
+│   │   │   ├── my-schedule.tsx           # User's schedule
+│   │   │   └── details/                  # Class details
+│   │   │       ├── _layout.tsx
+│   │   │       └── [id].tsx              # Dynamic class page
+│   │   └── profile/                      # Profile screens
 ├── 🏗️ src/                               # Source code (Feature-based architecture)
 │   │
 │   ├── features/                         # Feature modules

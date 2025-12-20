@@ -6,11 +6,15 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "un1tmobileapp",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.un1tmobileapp"
+      "bundleIdentifier": "com.anonymous.un1tmobileapp",
+      "infoPlist": {
+        "NSCalendarsUsageDescription": "We use your calendar to add booked classes.",
+        "NSRemindersUsageDescription": "We use your reminders to add booked classes."
+      }
     },
     "android": {
       "adaptiveIcon": {

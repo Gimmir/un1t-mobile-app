@@ -177,19 +177,21 @@ export default function HomeScreen() {
               refreshing={refreshing}
               onRefresh={onRefresh}
               tintColor="#FFFFFF"
+              titleColor="#FFFFFF"
               colors={['#FFFFFF']}
+              progressBackgroundColor="transparent"
             />
           }
         >
-          <HomeHero
-            isLoading={isLoading}
-            title={welcomeText}
-            subtitle={
-              <>
-                STUDIO <Text style={styles.heroLocation}>{studioTitle.toUpperCase()}</Text> • 06:30 — 21:00
-              </>
-            }
-          />
+            <HomeHero
+              isLoading={isLoading}
+              title={welcomeText}
+              subtitle={
+                <>
+                  STUDIO <Text style={styles.heroLocation}>{studioTitle.toUpperCase()}</Text> • 06:30 — 21:00
+                </>
+              }
+            />
 
           <CreditSummaryCard
             remaining={CREDIT_SUMMARY.remaining}

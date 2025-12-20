@@ -12,6 +12,7 @@ interface AuthLayoutProps {
   showHeader?: boolean;
   scrollable?: boolean;
   onBack?: () => void;
+  disableKeyboardAvoidance?: boolean;
 }
 
 export function AuthLayout({
@@ -21,6 +22,7 @@ export function AuthLayout({
   showHeader = true,
   scrollable = true,
   onBack,
+  disableKeyboardAvoidance = false,
 }: AuthLayoutProps) {
   const content = scrollable ? (
     <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -44,12 +46,16 @@ export function AuthLayout({
           />
         )}
 
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
-          className="flex-1"
-        >
-          {content}
-        </KeyboardAvoidingView>
+        {disableKeyboardAvoidance ? (
+          content
+        ) : (
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+            className="flex-1"
+          >
+            {content}
+          </KeyboardAvoidingView>
+        )}
       </SafeAreaView>
     </View>
   );

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { format, isToday } from 'date-fns';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { HexagonAvatar } from './hexagon-avatar';
@@ -7,6 +8,12 @@ import { ClassItem } from './types';
 const STATUS_STYLES = {
   AVAILABLE: {
     label: 'Spots open',
+    textColor: '#34D399',
+    backgroundColor: 'rgba(52, 211, 153, 0.15)',
+    accentColor: '#34D399',
+  },
+  BOOKED: {
+    label: 'Booked',
     textColor: '#34D399',
     backgroundColor: 'rgba(52, 211, 153, 0.15)',
     accentColor: '#34D399',
@@ -23,17 +30,57 @@ const STATUS_STYLES = {
     backgroundColor: 'rgba(248, 113, 113, 0.18)',
     accentColor: '#F87171',
   },
+  FINISHED: {
+    label: 'Finished',
+    textColor: '#A1A1AA',
+    backgroundColor: 'rgba(161, 161, 170, 0.12)',
+    accentColor: '#3F3F46',
+  },
+  CANCELLED: {
+    label: 'Cancelled',
+    textColor: '#F87171',
+    backgroundColor: 'rgba(248, 113, 113, 0.18)',
+    accentColor: '#F87171',
+  },
 } as const;
 
-export const ClassCard: React.FC<ClassItem> = ({ time, name, trainer, status, avatar }) => {
+export type ClassCardProps = ClassItem & {
+  date?: Date;
+  dateLabel?: string;
+  onPress?: () => void;
+};
+
+export const ClassCard: React.FC<ClassCardProps> = ({
+  time,
+  name,
+  trainer,
+  status,
+  avatar,
+  date,
+  dateLabel,
+  onPress,
+}) => {
   const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES.AVAILABLE;
 
+  const resolvedDateLabel = React.useMemo(() => {
+    if (dateLabel) return dateLabel;
+    if (!date) return 'Today';
+    try {
+      return isToday(date) ? 'Today' : format(date, 'MMM d');
+    } catch {
+      return 'Today';
+    }
+  }, [date, dateLabel]);
+
   return (
-    <TouchableOpacity activeOpacity={0.92} style={styles.touchTarget}>
+    <TouchableOpacity activeOpacity={0.92} style={styles.touchTarget} onPress={onPress}>
       <View style={[styles.accent, { backgroundColor: statusStyle.accentColor }]} />
       <View style={styles.cardBody}>
         <View style={styles.headerRow}>
-          <Text style={styles.classTime}>{time}</Text>
+          <View style={styles.timeBlock}>
+            <Text style={styles.dateText}>{resolvedDateLabel}</Text>
+            <Text style={styles.classTime}>{time}</Text>
+          </View>
           <View style={[styles.statusBadge, { backgroundColor: statusStyle.backgroundColor }]}>
             <Text style={[styles.statusText, { color: statusStyle.textColor }]}>
               {statusStyle.label}
@@ -81,8 +128,18 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
+  },
+  timeBlock: {
+    flex: 1,
+  },
+  dateText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#A1A1AA',
+    letterSpacing: 0.6,
+    marginBottom: 2,
   },
   classTime: {
     fontSize: 18,

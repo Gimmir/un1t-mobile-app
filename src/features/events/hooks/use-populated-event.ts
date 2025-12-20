@@ -29,8 +29,18 @@ export interface PopulatedEvent extends Event {
  * // - location: Studio (with title)
  */
 export function usePopulatedEvent(event: Event | null | undefined) {
-  const coachId = typeof event?.coach === 'string' ? event.coach : null;
-  const studioId = typeof event?.studio === 'string' ? event.studio : null;
+  const coachId =
+    typeof event?.coach === 'string'
+      ? event.coach
+      : event?.coach && typeof event.coach === 'object' && '_id' in event.coach && typeof (event.coach as any)._id === 'string'
+        ? (event.coach as any)._id
+        : null;
+  const studioId =
+    typeof event?.studio === 'string'
+      ? event.studio
+      : event?.studio && typeof event.studio === 'object' && '_id' in event.studio && typeof (event.studio as any)._id === 'string'
+        ? (event.studio as any)._id
+        : null;
 
   const { data: coach, isLoading: coachLoading } = useUser(coachId);
   const { data: studio, isLoading: studioLoading } = useStudio(studioId);

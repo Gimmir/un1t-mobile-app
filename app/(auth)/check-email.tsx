@@ -9,7 +9,7 @@ export default function CheckEmailScreen() {
   const router = useRouter();
 
   const handleGoToLogin = () => {
-    router.dismissTo('/(auth)/login');
+    router.replace('/(auth)/login');
   };
 
   return (

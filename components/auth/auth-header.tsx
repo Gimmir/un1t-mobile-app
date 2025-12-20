@@ -16,7 +16,11 @@ export function AuthHeader({ currentStep, totalSteps, onBack }: AuthHeaderProps)
     if (onBack) {
       onBack();
     } else {
-      router.back();
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace('/landing');
+      }
     }
   };
 

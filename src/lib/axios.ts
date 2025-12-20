@@ -1,5 +1,7 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { router } from 'expo-router';
+import { authEvents } from '@/src/features/auth/auth-events';
+import { queryClient } from '@/src/lib/query-client';
 import { StorageKeys, storageUtils } from './storage';
 
 /**
@@ -23,9 +25,16 @@ export const apiClient: AxiosInstance = axios.create({
  */
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
+    const url = config.url || '';
+    const skipAuthHeader =
+      url.includes('/auth/login') ||
+      url.includes('/auth/register') ||
+      url.includes('/auth/forgot-password') ||
+      url.includes('/auth/reset-password');
+
     const token = await storageUtils.getString(StorageKeys.AUTH_TOKEN);
     
-    if (token && config.headers) {
+    if (!skipAuthHeader && token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
@@ -50,7 +59,11 @@ apiClient.interceptors.response.use(
     const hadAuthHeader = Boolean(headers?.Authorization || headers?.authorization);
     
     // Don't auto-logout on 401 for login/register endpoints
-    const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register');
+    const isAuthEndpoint =
+      url.includes('/auth/login') ||
+      url.includes('/auth/register') ||
+      url.includes('/auth/forgot-password') ||
+      url.includes('/auth/reset-password');
     
     // Extract error message from response - handle various formats
     const errorData = error.response?.data as any;
@@ -59,8 +72,12 @@ apiClient.interceptors.response.use(
     // Try different possible error message formats
     if (typeof errorData?.message === 'string') {
       serverMessage = errorData.message;
+    } else if (typeof errorData?.error?.message === 'string') {
+      serverMessage = errorData.error.message;
     } else if (typeof errorData?.error === 'string') {
       serverMessage = errorData.error;
+    } else if (typeof errorData?.data?.message === 'string') {
+      serverMessage = errorData.data.message;
     } else if (typeof errorData === 'string') {
       serverMessage = errorData;
     }
@@ -77,7 +94,13 @@ apiClient.interceptors.response.use(
       } else {
         // For other endpoints, auto logout
         await storageUtils.clearAll();
-        router.replace('/login');
+        authEvents.emit({ isAuthenticated: false });
+        await queryClient.cancelQueries();
+        queryClient.removeQueries();
+        if (router.canDismiss()) {
+          router.dismissAll();
+        }
+        router.replace('/landing');
         return Promise.reject(new Error('Session expired. Please login again.'));
       }
     }

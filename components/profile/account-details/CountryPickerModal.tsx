@@ -22,8 +22,6 @@ export function CountryPickerModal(props: {
   const { visible, selectedCode, onSelect, onClose } = props;
   const [countrySearch, setCountrySearch] = useState('');
 
-  if (!visible) return null;
-
   const countryOptions = useMemo(
     () =>
       Object.entries(COUNTRY_NAMES)
@@ -51,6 +49,8 @@ export function CountryPickerModal(props: {
     setCountrySearch('');
     onSelect(code);
   };
+
+  if (!visible) return null;
 
   return (
     <Modal

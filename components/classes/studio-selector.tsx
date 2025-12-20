@@ -12,6 +12,7 @@ type StudioSelectorProps = {
   selectedStudioId: string | null;
   onSelectStudio: (studioId: string) => void;
   isLoading?: boolean;
+  onSchedulePress?: () => void;
 };
 
 export const StudioSelector: React.FC<StudioSelectorProps> = ({
@@ -19,6 +20,7 @@ export const StudioSelector: React.FC<StudioSelectorProps> = ({
   selectedStudioId,
   onSelectStudio,
   isLoading,
+  onSchedulePress,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -45,7 +47,13 @@ export const StudioSelector: React.FC<StudioSelectorProps> = ({
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8} style={styles.scheduleButton}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          onPress={onSchedulePress}
+          style={[styles.scheduleButton, !onSchedulePress && styles.scheduleButtonDisabled]}
+          disabled={!onSchedulePress}
+        >
           <Text style={styles.scheduleButtonText}>MY SCHEDULE</Text>
         </TouchableOpacity>
       </View>
@@ -117,15 +125,18 @@ const styles = StyleSheet.create({
     maxWidth: '88%',
   },
   scheduleButton: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#ffffffff',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 6,
   },
+  scheduleButtonDisabled: {
+    opacity: 0.6,
+  },
   scheduleButtonText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#191919',
     letterSpacing: 0.5,
   },
   modalOverlay: {

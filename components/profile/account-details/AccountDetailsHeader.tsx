@@ -67,9 +67,12 @@ const HEADER_SIDE_WIDTH = 72;
 const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 16,
-    paddingBottom: 10,
+    paddingTop: 6,
+    paddingBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#1F1F23',
   },
   headerSide: {
     width: HEADER_SIDE_WIDTH,
@@ -104,4 +107,3 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
   },
 });
-

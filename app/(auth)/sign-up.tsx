@@ -1,18 +1,18 @@
-import {
-  AuthLayout,
-  CustomCheckbox,
-  CustomInput,
-  CustomSelect,
-  PrimaryButton,
-  SlideUpModal,
-} from '@/components/auth';
+import { SlideUpModal } from '@/components/auth';
+import { AuthTextureBackground } from '@/components/auth/auth-texture-background';
+import { SignUpForm } from '@/components/auth/signup/SignUpForm';
+import { SignUpTitles, SignUpTopBar } from '@/components/auth/signup/SignUpHeader';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { LANGUAGES, STUDIOS } from '@/src/constants/auth-data';
+import { LANGUAGES } from '@/src/constants/auth-data';
+import { useSignUpDraft } from '@/src/features/auth/signup/sign-up-draft';
+import { useStudios } from '@/src/features/studios/hooks/use-studios';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { Stack, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as z from 'zod';
 
 // --- ВАЛІДАЦІЯ ---
@@ -27,173 +27,162 @@ const signUpSchema = z.object({
     .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
     .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
     .regex(/[0-9]/, { message: "Password must contain at least one number" }),
+  confirmPassword: z.string().min(1, { message: 'Please confirm your password' }),
   terms: z.literal(true, { message: "You must agree to the terms" }),
   marketing: z.boolean().optional(),
+}).superRefine((values, ctx) => {
+  if (values.password !== values.confirmPassword) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+    });
+  }
 });
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
+  const { draft, setStep1 } = useSignUpDraft();
+  const insets = useSafeAreaInsets();
   
   const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
   const [isStudioModalVisible, setStudioModalVisible] = useState(false);
+  const { data: studios, isLoading: isLoadingStudios } = useStudios();
 
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<SignUpFormData>({
+  const studioOptions = useMemo(() => {
+    const list = Array.isArray(studios) ? studios : [];
+    return list
+      .map((studio) => ({
+        id: studio._id,
+        name: studio.title,
+      }))
+      .filter((studio) => Boolean(studio.id) && Boolean(studio.name));
+  }, [studios]);
+
+  const formatStudioLabel = useCallback(
+    (studioId: string) => {
+      const match = studioOptions.find((s) => s.id === studioId);
+      return match?.name ?? studioId;
+    },
+    [studioOptions]
+  );
+
+  const formatLanguageLabel = useCallback((languageId: string) => {
+    const match = LANGUAGES.find((l) => l.id === languageId);
+    if (!match) return languageId;
+    if (match.id === 'en-GB') return 'English, UK';
+    return match.name;
+  }, []);
+
+  const defaultValues = useMemo(
+    () => ({
+      firstName: draft.step1?.firstName ?? '',
+      lastName: draft.step1?.lastName ?? '',
+      email: draft.step1?.email ?? '',
+      homeStudio: draft.step1?.homeStudioId ?? '',
+      language: draft.step1?.languageId ?? '',
+      password: draft.step1?.password ?? '',
+      confirmPassword: draft.step1?.password ?? '',
+      terms: draft.step1?.terms as any,
+      marketing: draft.step1?.marketing ?? false,
+    }),
+    [draft.step1]
+  );
+
+  const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     mode: 'onChange', 
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      homeStudio: '',
-      language: '',
-      password: '',
-      terms: undefined,
-      marketing: false,
-    }
+    defaultValues,
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const selectedLanguage = watch('language');
   const selectedStudio = watch('homeStudio');
 
   const onSubmit = (data: SignUpFormData) => {
-
+    setStep1({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      homeStudioId: data.homeStudio,
+      languageId: data.language,
+      marketing: Boolean(data.marketing),
+      terms: Boolean(data.terms),
+    });
     router.push('/(auth)/sign-up-step-2');
   };
 
-  const renderStudioItem = ({ item }: { item: typeof STUDIOS[0] }) => {
-    const isSelected = selectedStudio === item.name;
-    return (
-      <TouchableOpacity 
-        className="flex-row items-center py-4 border-b border-zinc-800"
-        onPress={() => {
-          setValue('homeStudio', item.name, { shouldValidate: true });
-          setStudioModalVisible(false);
-        }}
-      >
-        <Text style={{ fontSize: 16 }} className={`flex-1 ${isSelected ? 'text-white font-bold' : 'text-zinc-400'}`}>
-          {item.name}
-        </Text>
-        {isSelected && <IconSymbol name="checkmark" size={18} color="white" />}
-      </TouchableOpacity>
-    );
-  };
-
-  const renderLanguageItem = ({ item }: { item: typeof LANGUAGES[0] }) => {
-    const isSelected = selectedLanguage === item.name;
-    return (
-      <TouchableOpacity 
-        className="flex-row items-center py-4 border-b border-zinc-800"
-        onPress={() => {
-          setValue('language', item.name, { shouldValidate: true });
-          setLanguageModalVisible(false);
-        }}
-      >
-        <Text style={{ fontSize: 24, marginRight: 12 }}>{item.flag}</Text>
-        <Text style={{ fontSize: 16 }} className={`flex-1 ${isSelected ? 'text-white font-bold' : 'text-zinc-400'}`}>
-          {item.name}
-        </Text>
-        {isSelected && <IconSymbol name="checkmark" size={18} color="white" />}
-      </TouchableOpacity>
-    );
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/landing');
   };
 
   return (
-    <AuthLayout currentStep={1} totalSteps={5}>
-      <View className="px-5">
-        <Text className="text-white text-2xl font-bold mt-2 mb-8 text-center tracking-wider">
-          CREATE YOUR ACCOUNT
-        </Text>
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <StatusBar style="light" />
 
-        <View className="gap-3">
-          <CustomInput
+      <AuthTextureBackground height={560} />
+
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <SignUpTopBar onBack={handleBack} />
+
+        <ScrollView
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, 16) + 18 }]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        >
+          <SignUpTitles />
+
+          <SignUpForm
             control={control}
-            name="firstName"
-            error={errors.firstName}
-            placeholder="First Name"
-            autoCapitalize="words"
-            textContentType="givenName"
-            autoComplete="name-given"
+            errors={errors}
+            onSubmit={handleSubmit(onSubmit)}
+            onLogin={() => router.replace('/(auth)/login')}
+            onStudioPress={() => setStudioModalVisible(true)}
+            onLanguagePress={() => setLanguageModalVisible(true)}
+            formatHomeStudioValue={formatStudioLabel}
+            formatLanguageValue={formatLanguageLabel}
           />
-
-          <CustomInput
-            control={control}
-            name="lastName"
-            error={errors.lastName}
-            placeholder="Last Name"
-            autoCapitalize="words"
-            textContentType="familyName"
-            autoComplete="name-family"
-          />
-
-          <CustomInput
-            control={control}
-            name="email"
-            error={errors.email}
-            placeholder="Email"
-            type="email"
-            showClearButton
-          />
-
-          <CustomSelect
-            control={control}
-            name="homeStudio"
-            error={errors.homeStudio}
-            placeholder="Choose Home Studio"
-            onPress={() => setStudioModalVisible(true)}
-          />
-
-          <CustomSelect
-            control={control}
-            name="language"
-            error={errors.language}
-            placeholder="Choose Language"
-            onPress={() => setLanguageModalVisible(true)}
-          />
-
-          <CustomInput
-            control={control}
-            name="password"
-            error={errors.password}
-            placeholder="Password"
-            type="password"
-            helperText="Must contain at least 8 characters including an uppercase letter, a lowercase letter and a number."
-          />
-
-          <View className="mt-6 gap-4">
-            <CustomCheckbox
-              control={control}
-              name="terms"
-              error={errors.terms}
-              label={
-                <Text className="text-white" style={{ fontSize: 16, lineHeight: 24 }}>
-                  I agree to UN1T's <Text className="underline">Terms and Conditions</Text> and{' '}
-                  <Text className="underline">Privacy Policy</Text>
-                </Text>
-              }
-            />
-
-            <CustomCheckbox
-              control={control}
-              name="marketing"
-              label="Opt-in for marketing communications"
-            />
-          </View>
-
-          <View className="mt-10 mb-10">
-            <PrimaryButton title="NEXT" onPress={handleSubmit(onSubmit)} />
-          </View>
-        </View>
-      </View>
+        </ScrollView>
+      </SafeAreaView>
 
       <SlideUpModal
         visible={isStudioModalVisible}
         onClose={() => setStudioModalVisible(false)}
         title="Choose Home Studio"
-        data={STUDIOS}
-        renderItem={renderStudioItem}
+        data={studioOptions}
+        isLoading={isLoadingStudios}
+        emptyText={isLoadingStudios ? 'Loading…' : 'No studios available.'}
+        renderItem={({ item }: { item: { id: string; name: string } }) => {
+          const isSelected = selectedStudio === item.id;
+          return (
+            <TouchableOpacity
+              accessibilityRole="button"
+              activeOpacity={0.85}
+              onPress={() => {
+                setValue('homeStudio', item.id, { shouldValidate: true });
+                setStudioModalVisible(false);
+              }}
+              style={styles.modalRow}
+            >
+              <Text style={[styles.modalRowText, isSelected ? styles.modalRowTextActive : styles.modalRowTextInactive]}>
+                {item.name}
+              </Text>
+              {isSelected ? <IconSymbol name="checkmark" size={18} color="#FFFFFF" /> : null}
+            </TouchableOpacity>
+          );
+        }}
       />
 
       <SlideUpModal
@@ -201,8 +190,68 @@ export default function SignUpScreen() {
         onClose={() => setLanguageModalVisible(false)}
         title="Choose Language"
         data={LANGUAGES}
-        renderItem={renderLanguageItem}
+        renderItem={({ item }: { item: typeof LANGUAGES[0] }) => {
+          const isSelected = selectedLanguage === item.id;
+          return (
+            <TouchableOpacity
+              accessibilityRole="button"
+              activeOpacity={0.85}
+              onPress={() => {
+                setValue('language', item.id, { shouldValidate: true });
+                setLanguageModalVisible(false);
+              }}
+              style={styles.modalRow}
+            >
+              <Text style={styles.modalFlag}>{item.flag}</Text>
+              <Text style={[styles.modalRowText, isSelected ? styles.modalRowTextActive : styles.modalRowTextInactive]}>
+                {item.id === 'en-GB' ? 'English, UK' : item.name}
+              </Text>
+              {isSelected ? <IconSymbol name="checkmark" size={18} color="#FFFFFF" /> : null}
+            </TouchableOpacity>
+          );
+        }}
       />
-    </AuthLayout>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#191919',
+  },
+  safeArea: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+  },
+  modalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#1F1F23',
+  },
+  modalFlag: {
+    fontSize: 22,
+    marginRight: 12,
+    color: '#FFFFFF',
+  },
+  modalRowText: {
+    fontSize: 14,
+    flex: 1,
+    letterSpacing: 0.4,
+  },
+  modalRowTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+  },
+  modalRowTextInactive: {
+    color: '#A1A1AA',
+    fontWeight: '700',
+  },
+});

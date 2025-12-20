@@ -17,6 +17,9 @@ interface CustomInputProps<T extends FieldValues> extends Omit<TextInputProps, '
   type?: 'text' | 'email' | 'password' | 'phone';
   showClearButton?: boolean;
   helperText?: string;
+  variant?: 'card' | 'pill';
+  leadingIconName?: string;
+  leadingIconColor?: string;
 }
 
 export function CustomInput<T extends FieldValues>({
@@ -27,15 +30,22 @@ export function CustomInput<T extends FieldValues>({
   type = 'text',
   showClearButton = false,
   helperText,
+  variant = 'card',
+  leadingIconName,
+  leadingIconColor = '#A1A1AA',
   ...textInputProps
 }: CustomInputProps<T>) {
   const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const isPassword = type === 'password';
+  const { onBlur: onBlurProp, onFocus: onFocusProp, ...restTextInputProps } = textInputProps;
 
   const getBorderStyle = (hasError: boolean, value: string) => {
-    if (hasError) return 'border-b border-red-500';
-    if (value && value.length > 0) return 'border-b border-white';
-    return 'border-b border-transparent';
+    if (hasError) return 'border border-red-500';
+    if (isFocused) return 'border border-white/35';
+    if (variant === 'pill') return 'border border-white/12';
+    if (value && value.length > 0) return 'border border-white/20';
+    return 'border border-[#1C1C1F]';
   };
 
   const getTextColor = (hasError: boolean) => (hasError ? 'text-red-500' : 'text-white');
@@ -66,13 +76,31 @@ export function CustomInput<T extends FieldValues>({
       name={name}
       render={({ field: { onChange, onBlur, value } }) => (
         <View>
-          <View className={`bg-[#252525] px-4 flex-row items-center h-[52px] ${getBorderStyle(!!error, value)}`}>
+          <View
+            className={`bg-[#111113] flex-row items-center ${
+              variant === 'pill' ? 'h-[56px] rounded-full px-5' : 'h-[52px] rounded-[10px] px-4'
+            } ${getBorderStyle(!!error, value)}`}
+          >
+            {leadingIconName ? (
+              <View className="mr-3">
+                <IconSymbol name={leadingIconName as any} size={20} color={leadingIconColor} />
+              </View>
+            ) : null}
+
             <TextInput
               value={value}
               onChangeText={onChange}
-              onBlur={onBlur}
+              onBlur={(e) => {
+                setIsFocused(false);
+                onBlur();
+                onBlurProp?.(e);
+              }}
+              onFocus={(e) => {
+                setIsFocused(true);
+                onFocusProp?.(e);
+              }}
               placeholder={placeholder}
-              placeholderTextColor="#52525b"
+              placeholderTextColor="#71717A"
               className={`flex-1 ${getTextColor(!!error)}`}
               style={{ fontSize: 16 }}
               secureTextEntry={isPassword && !showPassword}
@@ -81,18 +109,18 @@ export function CustomInput<T extends FieldValues>({
               textContentType={getTextContentType()}
               autoCapitalize={type === 'email' ? 'none' : textInputProps.autoCapitalize || 'sentences'}
               autoCorrect={type === 'email' ? false : textInputProps.autoCorrect}
-              {...textInputProps}
+              {...restTextInputProps}
             />
             
             {isPassword && (
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <IconSymbol name={showPassword ? 'eye.slash' : 'eye'} size={20} color="#52525b" />
+              <TouchableOpacity accessibilityRole="button" onPress={() => setShowPassword(!showPassword)}>
+                <IconSymbol name={showPassword ? 'eye.slash' : 'eye'} size={20} color="#A1A1AA" />
               </TouchableOpacity>
             )}
             
             {showClearButton && value && value.length > 0 && !isPassword && (
-              <TouchableOpacity onPress={() => onChange('')}>
-                <IconSymbol name="xmark" size={18} color="#52525b" />
+              <TouchableOpacity accessibilityRole="button" onPress={() => onChange('')}>
+                <IconSymbol name="xmark" size={18} color="#A1A1AA" />
               </TouchableOpacity>
             )}
           </View>

@@ -1,19 +1,22 @@
-import { useAuth } from '@/src/features/auth/hooks/use-auth';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { MembershipCard } from '@/components/profile/profile/MembershipCard';
+import { ProfileCard } from '@/components/profile/profile/ProfileCard';
+import { ProfileHero } from '@/components/profile/profile/ProfileHero';
+import { ProfileRow } from '@/components/profile/profile/ProfileRow';
+import { ProfileTopBackground } from '@/components/profile/profile/ProfileTopBackground';
+import { ProfileVersionBlock } from '@/components/profile/profile/ProfileVersionBlock';
+import { TAB_HEIGHT } from '@/components/tabs';
+import { useAuth, useLogout } from '@/src/features/auth/hooks/use-auth';
+import { useStudio } from '@/src/features/studios/hooks/use-studios';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useMemo, useState } from 'react';
 import {
-  Image,
+  Alert,
   ScrollView,
   StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type ProfileSettingItem = {
   key: string;
@@ -27,7 +30,7 @@ type ProfileSettingItem = {
 const accountSettings: ProfileSettingItem[] = [
   { key: 'account', label: 'Account details', icon: 'person-outline' },
   { key: 'payment', label: 'Payment details', icon: 'card-outline' },
-  { key: 'preferences', label: 'Preferences', icon: 'notifications-outline' },
+  { key: 'notifications', label: 'Notifications', icon: 'notifications-outline' },
   { key: 'settings', label: 'Settings', icon: 'settings-outline' },
   { key: 'password', label: 'Change Password', icon: 'shield-checkmark-outline' },
   { key: 'touch', label: 'Sign in with Touch ID', icon: 'finger-print-outline', type: 'switch' },
@@ -42,18 +45,44 @@ const socialLinks = [
   { key: 'terms', label: 'Terms & conditions', icon: 'information-circle-outline' },
 ];
 
+const MEMBERSHIP_CREDITS_REMAINING = 15;
+const MEMBERSHIP_CREDITS_TOTAL = 20;
+const MEMBERSHIP_EXPIRES = '30.08.2020';
+
 export default function ProfileScreen() {
   const [touchIdEnabled, setTouchIdEnabled] = useState(true);
   const [faceIdEnabled, setFaceIdEnabled] = useState(true);
-  const { data: user } = useAuth();
+  const { data: user, isLoading: isLoadingUser } = useAuth();
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const scrollBottomPadding = Math.max(insets.bottom, 16) + TAB_HEIGHT + 24;
 
   const fullName = useMemo(() => {
     const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
     return name ? name.toUpperCase() : 'JO BOTTELL';
   }, [user?.firstName, user?.lastName]);
-  const studioLocation =
-    ((user as any)?.studio?.name || (user as any)?.studioName || 'LONDON BRIDGE').toUpperCase();
+
+  const userStudioRef = (user as any)?.studio ?? null;
+  const studioId =
+    typeof userStudioRef === 'string'
+      ? userStudioRef
+      : userStudioRef && typeof userStudioRef === 'object'
+        ? (userStudioRef._id ?? userStudioRef.id ?? null)
+        : null;
+
+  const populatedStudioTitle =
+    userStudioRef && typeof userStudioRef === 'object'
+      ? (userStudioRef.title ?? userStudioRef.name)
+      : undefined;
+
+  const { data: fetchedStudio } = useStudio(populatedStudioTitle ? null : studioId);
+  const studioTitle =
+    populatedStudioTitle ??
+    fetchedStudio?.title ??
+    (fetchedStudio as any)?.name ??
+    (isLoadingUser ? '…' : '—');
+  const studioLocation = String(studioTitle).toUpperCase();
 
   const sections = useMemo<ProfileSettingItem[]>(
     () =>
@@ -73,133 +102,90 @@ export default function ProfileScreen() {
     if (key === 'account') {
       router.push('/profile/account-details');
     }
-  };
-
-  const renderRow = (item: ProfileSettingItem, isLast = false) => {
-    if (item.type === 'switch') {
-      return (
-        <View key={item.key} style={[styles.row, isLast && styles.rowLast]}>
-          <View style={styles.rowLeft}>
-            <Ionicons name={item.icon as any} size={18} color="#E4E4E7" style={{ width: 22 }} />
-            <Text style={styles.rowLabel}>{item.label}</Text>
-          </View>
-
-          <Switch
-            value={Boolean(item.value)}
-            onValueChange={item.toggle}
-            trackColor={{ true: '#FFFFFF', false: '#3F3F46' }}
-            thumbColor="#191919"
-          />
-        </View>
-      );
+    if (key === 'notifications') {
+      router.push('/profile/notifications');
     }
-
-    return (
-      <TouchableOpacity
-        key={item.key}
-        activeOpacity={0.7}
-        accessibilityRole="button"
-        onPress={() => handleRowPress(item.key)}
-        style={[styles.row, isLast && styles.rowLast]}
-      >
-        <View style={styles.rowLeft}>
-          <Ionicons name={item.icon as any} size={18} color="#E4E4E7" style={{ width: 22 }} />
-          <Text style={styles.rowLabel}>{item.label}</Text>
-        </View>
-
-        <Ionicons name="chevron-forward" size={18} color="#71717A" />
-      </TouchableOpacity>
-    );
+    if (key === 'settings') {
+      router.push('/profile/settings');
+    }
+    if (key === 'password') {
+      router.push('/profile/change-password');
+    }
   };
 
-  const renderSimpleRow = (item: (typeof socialLinks)[number], isLast = false) => (
-    <View key={item.key} style={[styles.row, isLast && styles.rowLast]}>
-      <View style={styles.rowLeft}>
-        <Ionicons name={item.icon as any} size={18} color="#E4E4E7" style={{ width: 22 }} />
-        <Text style={styles.rowLabel}>{item.label}</Text>
-      </View>
-      <Ionicons name="chevron-forward" size={18} color="#71717A" />
-    </View>
-  );
+  const handleLogoutPress = () => {
+    if (isLoggingOut) return;
+    Alert.alert('Log out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Log out', style: 'destructive', onPress: () => logout() },
+    ]);
+  };
+
+  const handleDeleteAccountPress = () => {
+    Alert.alert('Delete account', 'This feature is not available yet.');
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      <View style={styles.textureWrapper}>
-        <Image
-          source={require('@/assets/images/home-top-texture.png')}
-          style={styles.textureImage}
-          resizeMode="cover"
-        />
-        <LinearGradient
-          colors={['rgba(0,0,0,0)', '#191919']}
-          style={styles.textureOverlay}
-        />
-      </View>
+      <ProfileTopBackground />
 
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 80 }}
+          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.hero}>
-            <Text style={styles.heroTitle}>{fullName}</Text>
-            <Text style={styles.heroSubtitle}>
-              STUDIO <Text style={styles.heroSubtitleAccent}>{studioLocation}</Text>
-            </Text>
-          </View>
+          <ProfileHero fullName={fullName} studioLocation={studioLocation} />
 
-          <View style={styles.membershipCard}>
-            <Text style={styles.cardTitle}>MEMBERSHIP AND PASSES</Text>
-            <Text style={styles.bundleLabel}>20 CLASS BUNDLE</Text>
-            <View style={styles.cardStats}>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>CREDITS REMAINING</Text>
-                <Text style={styles.statValue}>15</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>EXPIRES</Text>
-                <Text style={styles.statValue}>30.08.2020</Text>
-              </View>
-            </View>
+          <MembershipCard
+            remaining={MEMBERSHIP_CREDITS_REMAINING}
+            total={MEMBERSHIP_CREDITS_TOTAL}
+            expires={MEMBERSHIP_EXPIRES}
+          />
 
-            <View style={styles.cardDivider} />
+          <ProfileCard>
+            {sections.map((item, index) => (
+              <ProfileRow
+                key={item.key}
+                label={item.label}
+                icon={item.icon}
+                isLast={index === sections.length - 1}
+                onPress={item.type === 'switch' ? undefined : () => handleRowPress(item.key)}
+                switchValue={item.type === 'switch' ? Boolean(item.value) : undefined}
+                onToggle={item.type === 'switch' ? item.toggle : undefined}
+              />
+            ))}
+          </ProfileCard>
 
-            <TouchableOpacity activeOpacity={0.8} style={styles.ctaButton}>
-              <Text style={styles.ctaText}>BUY MEMBERSHIP</Text>
-            </TouchableOpacity>
-          </View>
+          <ProfileCard>
+            {socialLinks.map((item, index) => (
+              <ProfileRow
+                key={item.key}
+                label={item.label}
+                icon={item.icon}
+                isLast={index === socialLinks.length - 1}
+              />
+            ))}
+          </ProfileCard>
 
-          <View style={styles.card}>
-            {sections.map((item, index) => renderRow(item, index === sections.length - 1))}
-          </View>
+          <ProfileCard>
+            <ProfileRow
+              label={isLoggingOut ? 'Logging out…' : 'Log out'}
+              icon="log-out-outline"
+              accentColor="#FACC15"
+              onPress={handleLogoutPress}
+            />
+            <ProfileRow
+              label="Delete Account"
+              icon="trash-outline"
+              accentColor="#F87171"
+              onPress={handleDeleteAccountPress}
+              isLast
+            />
+          </ProfileCard>
 
-          <View style={styles.card}>
-            {socialLinks.map((item, index) => renderSimpleRow(item, index === socialLinks.length - 1))}
-          </View>
-
-          <View style={styles.card}>
-            <TouchableOpacity activeOpacity={0.7} style={styles.row}>
-              <View style={styles.rowLeft}>
-                <Ionicons name="log-out-outline" size={18} color="#FACC15" style={{ width: 22 }} />
-                <Text style={[styles.rowLabel, { color: '#FACC15' }]}>Log out</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#71717A" />
-            </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.7} style={[styles.row, styles.rowLast]}>
-              <View style={styles.rowLeft}>
-                <Ionicons name="trash-outline" size={18} color="#F87171" style={{ width: 22 }} />
-                <Text style={[styles.rowLabel, { color: '#F87171' }]}>Delete Account</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#71717A" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.versionBlock}>
-            <Text style={styles.versionText}>Version 1.0</Text>
-            <Text style={styles.versionText}>Un1t LTD UK</Text>
-          </View>
+          <ProfileVersionBlock version="Version 2.0" company="Un1t LTD UK" />
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -211,153 +197,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#191919',
   },
-  textureWrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 400,
-  },
-  textureImage: {
-    width: '100%',
-    height: '100%',
-    opacity: 0.7,
-  },
-  textureOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 260,
-  },
   safeArea: {
     flex: 1,
-  },
-  hero: {
-    alignItems: 'center',
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  heroTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 2,
-  },
-  heroSubtitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 3,
-    color: '#D4D4D8',
-    marginTop: 6,
-  },
-  heroSubtitleAccent: {
-    color: '#FFFFFF',
-    fontWeight: '800',
-    letterSpacing: 3,
-  },
-  membershipCard: {
-    backgroundColor: '#101012',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#1F1F23',
-    marginHorizontal: 16,
-    padding: 18,
-    marginBottom: 18,
-  },
-  cardTitle: {
-    color: '#A1A1AA',
-    fontSize: 12,
-    fontWeight: '700',
-    textAlign: 'center',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  bundleLabel: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 1,
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  cardStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statLabel: {
-    color: '#6B7280',
-    fontSize: 10,
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  statValue: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: 1,
-  },
-  cardDivider: {
-    height: 1,
-    backgroundColor: '#27272A',
-    marginBottom: 18,
-  },
-  ctaButton: {
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
-    borderRadius: 4,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  ctaText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-  card: {
-    backgroundColor: '#111113',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#1C1C1F',
-    marginHorizontal: 16,
-    marginBottom: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
-  },
-  rowLast: {
-    borderBottomWidth: 0,
-  },
-  rowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  rowLabel: {
-    color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-  },
-  versionBlock: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  versionText: {
-    color: '#6B7280',
-    fontSize: 11,
-    letterSpacing: 1,
   },
 });

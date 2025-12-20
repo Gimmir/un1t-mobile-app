@@ -1,8 +1,13 @@
-import { AuthLayout, CustomCheckbox, PrimaryButton } from '@/components/auth';
+import { AuthLayout } from '@/components/auth';
+import { WaiverCopy } from '@/components/auth/signup/step4/WaiverCopy';
+import { WaiverFooter } from '@/components/auth/signup/step4/WaiverFooter';
+import { useRegister } from '@/src/features/auth/hooks/use-auth';
+import { buildRegisterPayload } from '@/src/features/auth/signup/build-register-payload';
+import { useSignUpDraft } from '@/src/features/auth/signup/sign-up-draft';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import * as z from 'zod';
 
 const step4Schema = z.object({
@@ -15,6 +20,8 @@ type Step4FormData = z.infer<typeof step4Schema>;
 
 export default function SignUpStep4Screen() {
   const router = useRouter();
+  const { draft, reset: resetDraft } = useSignUpDraft();
+  const { mutate: register, isPending } = useRegister();
 
   const {
     control,
@@ -27,62 +34,62 @@ export default function SignUpStep4Screen() {
     },
   });
 
-  const onSubmit = (data: Step4FormData) => {
-    Alert.alert('Welcome to UN1T!', 'Your account has been successfully created.', [
-      { text: "Let's Go", onPress: () => router.replace('/(tabs)') },
-    ]);
+  const onSubmit = () => {
+    if (isPending) return;
+    const step1 = draft.step1;
+    const step2 = draft.step2;
+    const step3 = draft.step3;
+
+    if (!step1 || !step2 || !step3) {
+      router.replace('/(auth)/sign-up');
+      return;
+    }
+
+    if (!step1.email || !step1.password || !step1.firstName || !step1.lastName) {
+      Alert.alert('Missing information', 'Please complete step 1.');
+      router.replace('/(auth)/sign-up');
+      return;
+    }
+
+    if (!step1.homeStudioId) {
+      Alert.alert('Missing information', 'Please select a home studio.');
+      router.replace('/(auth)/sign-up');
+      return;
+    }
+
+    const payload = buildRegisterPayload(draft);
+    if (!payload) {
+      Alert.alert('Missing information', 'Please complete the previous steps.');
+      router.replace('/(auth)/sign-up');
+      return;
+    }
+
+    register(payload, {
+      onSuccess: () => {
+        resetDraft();
+        router.push('/(auth)/sign-up-step-5');
+      },
+      onError: (err) => {
+        Alert.alert('Error', err.message || 'Unable to register. Please try again.');
+      },
+    });
   };
 
   return (
-    <AuthLayout currentStep={4} totalSteps={4} scrollable={false}>
+    <AuthLayout currentStep={4} totalSteps={5} scrollable={false}>
       <View className="flex-1 px-6">
         <Text className="text-white text-2xl font-bold mt-2 mb-6 text-center tracking-wider uppercase">
           SIGN WAIVER
         </Text>
 
-        <View className="flex-1 mb-6">
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={true} indicatorStyle="white">
-            <Text className="text-zinc-400 text-sm leading-6 mb-4">
-              Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out
-              print, graphic or web designs. The passage is attributed to an unknown typesetter in
-              the 15th century who is thought to have scrambled parts of Cicero's De Finibus Bonorum
-              et Malorum for use in a type specimen book. It usually begins with:
-            </Text>
-            <Text className="text-zinc-400 text-sm leading-6 mb-4 italic">
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua."
-            </Text>
-            <Text className="text-zinc-400 text-sm leading-6 mb-4">
-              The purpose of lorem ipsum is to create a natural looking block of text (sentence,
-              paragraph, page, etc.) that doesn't distract from the layout. A practice not without
-              controversy, laying out pages with meaningless filler text can be very useful when the
-              focus is meant to be on design, not content.
-            </Text>
-            <Text className="text-zinc-400 text-sm leading-6 mb-4">
-              Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out
-              print, graphic or web designs. The passage is attributed to an unknown typesetter in
-              the 15th century who is thought to have scrambled parts of Cicero's De Finibus Bonorum
-              et Malorum for use in a type specimen book.
-            </Text>
-            <Text className="text-zinc-400 text-sm leading-6 mb-10">
-              By checking the box below, you acknowledge that you have read, understood, and agree
-              to be bound by these terms.
-            </Text>
-          </ScrollView>
+        <WaiverCopy />
 
-          <View
-            className="h-8 absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#191919] to-transparent"
-            pointerEvents="none"
-          />
-        </View>
-
-        <View className="mb-8">
-          <CustomCheckbox control={control} name="waiverAgreed" error={errors.waiverAgreed} label="I agree" />
-
-          <View className="mt-6">
-            <PrimaryButton title="REGISTER" onPress={handleSubmit(onSubmit)} />
-          </View>
-        </View>
+        <WaiverFooter
+          control={control}
+          error={errors.waiverAgreed}
+          isPending={isPending}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </View>
     </AuthLayout>
   );

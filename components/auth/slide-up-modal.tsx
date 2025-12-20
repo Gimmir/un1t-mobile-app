@@ -1,15 +1,16 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Animated,
+  ActivityIndicator,
   Dimensions,
   FlatList,
   ListRenderItem,
   Modal,
+  Pressable,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
@@ -19,6 +20,8 @@ interface SlideUpModalProps<T extends { id: string | number }> {
   title: string;
   data: T[];
   renderItem: ListRenderItem<T>;
+  isLoading?: boolean;
+  emptyText?: string;
   searchable?: boolean;
   onSearch?: (text: string) => void;
   height?: string;
@@ -30,125 +33,178 @@ export function SlideUpModal<T extends { id: string | number }>({
   title,
   data,
   renderItem,
+  isLoading = false,
+  emptyText,
   searchable = false,
   onSearch,
   height = '70%',
 }: SlideUpModalProps<T>) {
-  const [showModal, setShowModal] = useState(visible);
-  const slideAnim = useRef(new Animated.Value(Dimensions.get('window').height)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
   const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
-    if (visible) {
-      setShowModal(true);
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      handleClose();
-    }
-  }, [visible]);
-
-  const handleClose = () => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: Dimensions.get('window').height,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setShowModal(false);
+    if (!visible) {
       setSearchText('');
-      if (onSearch) onSearch('');
-      onClose();
-    });
-  };
+      onSearch?.('');
+    }
+  }, [onSearch, visible]);
 
   const handleSearchChange = (text: string) => {
     setSearchText(text);
     if (onSearch) onSearch(text);
   };
 
-  if (!showModal) return null;
+  const maxHeight = useMemo(() => {
+    const ratio = height === '80%' ? 0.8 : 0.7;
+    return Math.round(Dimensions.get('window').height * ratio);
+  }, [height]);
+
+  const normalizedTitle = useMemo(() => String(title ?? '').toUpperCase(), [title]);
 
   return (
-    <Modal transparent visible={showModal} animationType="none" onRequestClose={handleClose}>
-      <View className="flex-1 justify-end">
-        <TouchableWithoutFeedback onPress={handleClose}>
-          <Animated.View
-            style={{ opacity: fadeAnim }}
-            className="absolute top-0 bottom-0 left-0 right-0 bg-black/80"
-          />
-        </TouchableWithoutFeedback>
+    <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+      <View style={{ flex: 1 }}>
+        <Pressable style={styles.overlay} onPress={onClose} />
 
-        <Animated.View
-          style={{ 
-            transform: [{ translateY: slideAnim }],
-          }}
-          className={`bg-[#191919] rounded-t-3xl ${height === '80%' ? 'h-[80%]' : 'h-[70%]'} border-t border-zinc-800 w-full overflow-hidden`}
-        >
-          <View className="flex-row items-center justify-between px-6 py-5 border-b border-zinc-800 bg-[#191919]">
+        <View style={[styles.card, { maxHeight }]}>
+          <View style={styles.header}>
+            <Text style={styles.title}>{normalizedTitle}</Text>
             <TouchableOpacity
-              onPress={handleClose}
+              accessibilityRole="button"
+              activeOpacity={0.85}
+              onPress={onClose}
+              style={styles.closeButton}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <IconSymbol name="xmark" size={20} color="white" />
+              <IconSymbol name="xmark" size={18} color="#E4E4E7" />
             </TouchableOpacity>
-            <Text className="text-white font-bold text-base tracking-wider uppercase">{title}</Text>
-            <View className="w-5" />
           </View>
 
-          {searchable && (
-            <View className="px-6 pt-4 pb-2">
-              <View className="bg-[#252525] px-4 flex-row items-center h-12 rounded-lg">
-                <IconSymbol name="magnifyingglass" size={18} color="#52525b" />
+          {searchable ? (
+            <View style={styles.searchBlock}>
+              <View style={styles.searchInput}>
+                <IconSymbol name="magnifyingglass" size={18} color="#71717A" />
                 <TextInput
                   value={searchText}
                   onChangeText={handleSearchChange}
                   placeholder="Search..."
-                  placeholderTextColor="#52525b"
-                  className="flex-1 text-white ml-2"
-                  style={{ fontSize: 16 }}
+                  placeholderTextColor="#71717A"
+                  style={styles.searchText}
                   autoCapitalize="none"
                   autoCorrect={false}
                 />
-                {searchText.length > 0 && (
-                  <TouchableOpacity onPress={() => handleSearchChange('')}>
-                    <IconSymbol name="xmark" size={16} color="#52525b" />
+                {searchText.length > 0 ? (
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    activeOpacity={0.85}
+                    onPress={() => handleSearchChange('')}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <IconSymbol name="xmark" size={16} color="#71717A" />
                   </TouchableOpacity>
-                )}
+                ) : null}
               </View>
             </View>
-          )}
+          ) : null}
 
           <FlatList
             data={data}
             renderItem={renderItem}
             keyExtractor={(item) => String(item.id)}
-            contentContainerStyle={{
-              paddingHorizontal: 24,
-              paddingTop: searchable ? 10 : 10,
-              paddingBottom: 40,
-            }}
+            keyboardShouldPersistTaps="handled"
+            ListEmptyComponent={
+              <View style={styles.emptyBlock}>
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.emptyText}>{emptyText ?? 'Nothing here yet.'}</Text>
+                )}
+              </View>
+            }
+            contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
           />
-        </Animated.View>
+        </View>
       </View>
     </Modal>
   );
 }
+
+const styles = {
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  card: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    top: 110,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#1F1F23',
+    backgroundColor: '#101012',
+    overflow: 'hidden',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#1F1F23',
+  },
+  title: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 2,
+  },
+  closeButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: '#1F1F23',
+  },
+  searchBlock: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#1F1F23',
+  },
+  searchInput: {
+    height: 44,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#1F1F23',
+    backgroundColor: '#111113',
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  searchText: {
+    flex: 1,
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  listContent: {
+    paddingVertical: 6,
+  },
+  emptyBlock: {
+    paddingVertical: 24,
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: '#A1A1AA',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+} as const;

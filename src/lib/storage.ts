@@ -7,6 +7,8 @@ export enum StorageKeys {
   AUTH_TOKEN = 'auth_token',
   REFRESH_TOKEN = 'refresh_token',
   USER_DATA = 'user_data',
+  SETTINGS_UNITS = 'settings_units',
+  SETTINGS_MARKETING_EMAILS = 'settings_marketing_emails',
 }
 
 /**

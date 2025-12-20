@@ -1,6 +1,8 @@
 import type { Event } from '@/DATA_TYPES/event';
+import { useBookings } from '@/src/features/bookings/hooks/use-bookings';
+import { useCurrentUser } from '@/src/features/users/hooks/use-users';
 import { Ionicons } from '@expo/vector-icons';
-import { format, parseISO } from 'date-fns';
+import { format, isToday, parseISO } from 'date-fns';
 import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { HexagonAvatar } from '../classes/hexagon-avatar';
@@ -8,6 +10,7 @@ import { HexagonAvatar } from '../classes/hexagon-avatar';
 type EventCardProps = {
   event: Event;
   onPress?: (event: Event) => void;
+  statusLabelOverride?: string;
 };
 
 const STATUS_STYLES = {
@@ -30,15 +33,45 @@ const STATUS_STYLES = {
     accent: '#3F3F46',
   },
   finished: {
-    label: 'Finished',
+    label: 'Ended',
     textColor: '#A1A1AA',
-    badgeBg: 'rgba(161, 161, 170, 0.12)',
+    badgeBg: 'rgba(113, 113, 122, 0.18)',
     accent: '#52525B',
   },
 } as const;
 
-export function EventCard({ event, onPress }: EventCardProps) {
-  const statusStyle = STATUS_STYLES[event.status] ?? STATUS_STYLES.active;
+export function EventCard({ event, onPress, statusLabelOverride }: EventCardProps) {
+  const { data: bookings = [] } = useBookings();
+  const { data: currentUser } = useCurrentUser();
+
+  const isBooked = useMemo(() => {
+    if (!event?._id) return false;
+    const currentUserId = currentUser?._id ?? null;
+    if (!currentUserId) return false;
+
+    for (const booking of bookings as any[]) {
+      const bookingStatus = booking?.status as string | undefined;
+      if (bookingStatus === 'cancelled' || bookingStatus === 'refunded') continue;
+
+      const creatorRef = booking?.creator;
+      const creatorId = typeof creatorRef === 'string' ? creatorRef : creatorRef?._id;
+      if (creatorId && String(creatorId) !== String(currentUserId)) continue;
+
+      const bookingEventRef = booking?.event;
+      const bookingEventId =
+        typeof bookingEventRef === 'string' ? bookingEventRef : bookingEventRef?._id;
+      if (!bookingEventId) continue;
+      if (String(bookingEventId) === String(event._id)) return true;
+    }
+
+    return false;
+  }, [bookings, currentUser?._id, event?._id]);
+
+  const shouldShowBooked = isBooked && event.status !== 'cancelled' && event.status !== 'finished';
+  const baseStatusStyle = STATUS_STYLES[event.status] ?? STATUS_STYLES.active;
+  const statusStyle = shouldShowBooked ? STATUS_STYLES.active : baseStatusStyle;
+  const effectiveStatusLabel =
+    statusLabelOverride ?? (shouldShowBooked ? 'Booked' : statusStyle.label);
 
   const startTime = useMemo(() => {
     if (!event.start_time) return '--:--';
@@ -61,25 +94,33 @@ export function EventCard({ event, onPress }: EventCardProps) {
   const dateLabel = useMemo(() => {
     if (!event.start_time) return '';
     try {
-      return format(parseISO(event.start_time), 'MMM d');
+      const startDate = parseISO(event.start_time);
+      return isToday(startDate) ? 'Today' : format(startDate, 'MMM d');
     } catch {
       return '';
     }
   }, [event.start_time]);
 
   const coachName = useMemo(() => {
-    if (!event.instructor?.firstName) return 'Coach';
-    const lastName = event.instructor.lastName || '';
-    return `${event.instructor.firstName} ${lastName}`.trim();
-  }, [event.instructor]);
+    const coachProfile =
+      event.instructor ??
+      (event.coach && typeof event.coach === 'object' ? (event.coach as any) : null);
+    if (!coachProfile?.firstName) return 'Coach';
+    const lastName = coachProfile.lastName || '';
+    return `${coachProfile.firstName} ${lastName}`.trim();
+  }, [event.coach, event.instructor]);
   
   const primaryTag = event.tags?.[0] ?? '';
+  const coachProfile =
+    event.instructor ?? (event.coach && typeof event.coach === 'object' ? (event.coach as any) : null);
   const showCoachIcon =
     event.status === 'full' ||
     event.status === 'cancelled' ||
     event.status === 'finished' ||
-    !event.instructor?.avatar;
-  const coachImageUri = event.instructor?.avatar ?? `https://i.pravatar.cc/100?u=${event.instructor?._id ?? 'coach'}`;
+    !coachProfile?.avatar;
+  const coachImageUri =
+    coachProfile?.avatar ??
+    `https://i.pravatar.cc/100?u=${coachProfile?._id ?? (typeof event.coach === 'string' ? event.coach : 'coach')}`;
   const locationName = event.location?.title ?? '';
 
   return (
@@ -100,14 +141,13 @@ export function EventCard({ event, onPress }: EventCardProps) {
           <View style={styles.timeBlock}>
             <Text style={styles.timeText}>{startTime}</Text>
             <Text style={styles.timeMeta}>
-              {event.duration || 0} MIN • {endTime}
-              {dateLabel && <Text> • {dateLabel.toUpperCase()}</Text>}
+              {(dateLabel ? `${dateLabel} • ` : '') + `${event.duration || 0} MIN • ${endTime}`}
             </Text>
           </View>
 
           <View style={[styles.statusBadge, { backgroundColor: statusStyle.badgeBg }]}>
             <Text style={[styles.statusText, { color: statusStyle.textColor }]}>
-              {statusStyle.label}
+              {effectiveStatusLabel}
             </Text>
           </View>
         </View>
@@ -166,7 +206,9 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   finished: {
-    opacity: 0.85,
+    opacity: 0.7,
+    backgroundColor: '#0B0B0D',
+    borderColor: '#27272A',
   },
   accent: {
     width: 4,

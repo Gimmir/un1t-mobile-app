@@ -14,7 +14,7 @@ type ClassesEventsListProps = {
 function PopulatedEventCard({ event, onEventPress }: { event: Event; onEventPress?: (event: Event) => void }) {
   const { populatedEvent } = usePopulatedEvent(event);
   const displayEvent = populatedEvent ?? event;
-  
+
   return <EventCard event={displayEvent} onPress={onEventPress} />;
 }
 
@@ -56,7 +56,7 @@ export function ClassesEventsList({
         <PopulatedEventCard 
           key={event._id ?? `event_${index}`} 
           event={event} 
-          onEventPress={onEventPress} 
+          onEventPress={onEventPress}
         />
       ))}
     </View>

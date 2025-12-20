@@ -42,3 +42,6 @@ app-example
 /ios
 /android
 .env
+
+# local backups (created by Codex)
+backups/

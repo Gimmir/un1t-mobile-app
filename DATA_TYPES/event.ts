@@ -18,7 +18,7 @@ export interface Event extends BaseEntity {
   schedule: ID;
   status: EventStatus;
   
-  coach: ID;                        // Coach ID - use useUser(event.coach) to get full User with role='coach'
+  coach: any;                        // Coach ID - use useUser(event.coach) to get full User with role='coach'
   workout?: ID;
   timer?: ID;
   timerTemplate?: ID;

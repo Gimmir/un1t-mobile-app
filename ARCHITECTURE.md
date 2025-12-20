@@ -18,10 +18,26 @@ Enterprise-grade React Native application built with Expo SDK 54, featuring mode
 
 ```
 un1t-mobile-app/
-├── app/                          # Expo Router screens
-│   ├── (tabs)/                   # Tab navigation screens
+├── app/                          # Expo Router screens (file-system based routing)
 │   ├── _layout.tsx              # Root layout with providers
-│   └── modal.tsx                # Example modal screen
+│   ├── index.tsx                # Landing/redirect screen
+│   ├── (auth)/                  # Authentication screens
+│   │   ├── login.tsx
+│   │   ├── sign-up.tsx
+│   │   ├── sign-up-step-2.tsx
+│   │   ├── sign-up-step-3.tsx
+│   │   ├── sign-up-step-4.tsx
+│   │   ├── sign-up-step-5.tsx
+│   │   ├── forgot-password.tsx
+│   │   └── check-email.tsx
+│   ├── (tabs)/                  # Main app tab navigation
+│   │   ├── index.tsx            # Home/Dashboard
+│   │   ├── performance.tsx      # Performance stats
+│   │   ├── (classes)/           # Classes section (grouped)
+│   │   │   ├── index.tsx        # Classes list
+│   │   │   ├── my-schedule.tsx  # User schedule
+│   │   │   └── details/[id].tsx # Class detail page
+│   │   └── profile/             # Profile screens
 ├── src/
 │   ├── features/                # Feature-based modules
 │   │   ├── auth/

@@ -1,5 +1,6 @@
 import { PrimaryButton } from '@/components/auth';
 import { Stack, useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Image, ImageBackground, StyleSheet, View } from 'react-native';
@@ -30,7 +31,6 @@ export default function LandingScreen() {
     };
 
     return (
-        // Головний контейнер встановлено на чорний для видимості StatusBar
         <View style={styles.container}> 
             <Stack.Screen options={{ headerShown: false }} />
             <StatusBar style="light" /> 
@@ -41,10 +41,13 @@ export default function LandingScreen() {
                 resizeMode="cover"
                 onLoadEnd={handleLoadEnd} 
             >
-                {/* Оверлей та вміст, що з'являються після завантаження фону */}
                 <View style={styles.overlay}>
-                    
-                    {/* Плавний прояв контенту */}
+                  <View style={styles.overlayDim} />
+                    <LinearGradient
+                    colors={['rgba(0,0,0,0.10)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.70)', '#191919']}
+                    locations={[0, 0.45, 0.78, 1]}
+                    style={styles.overlayGradient}
+                  />
                     <ContentFadeIn isLoaded={isBgLoaded}>
                         <SafeAreaView style={styles.safeArea}>
                             
@@ -56,26 +59,25 @@ export default function LandingScreen() {
                                 />
                             </View>
 
-                            <View style={styles.buttonsWrapper}>
-                                <View style={styles.buttonRow}>
-                                    <View style={styles.buttonContainer}>
-                                        <PrimaryButton
-                                            title="SIGN UP"
-                                            onPress={() => router.push('/(auth)/sign-up')}
-                                        />
-                                    </View>
-                                    <View style={styles.buttonContainer}>
-                                        <PrimaryButton
-                                            title="LOGIN"
-                                            variant="secondary"
-                                            onPress={() => router.push('/(auth)/login')}
-                                        />
-                                    </View>
+                            <View style={styles.actions}>
+                              <View style={styles.buttonRow}>
+                                <View style={styles.buttonContainer}>
+                                  <PrimaryButton
+                                    title="SIGN UP"
+                                    onPress={() => router.replace('/(auth)/sign-up')}
+                                  />
                                 </View>
+                                <View style={styles.buttonContainer}>
+                                  <PrimaryButton
+                                    title="LOGIN"
+                                    variant="secondary"
+                                    onPress={() => router.replace('/(auth)/login')}
+                                  />
+                                </View>
+                              </View>
                             </View>
                         </SafeAreaView>
                     </ContentFadeIn>
-
                 </View>
             </ImageBackground>
 
@@ -99,18 +101,26 @@ export default function LandingScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#191919', // Основний чорний фон
+        backgroundColor: '#191919',
     },
     background: {
         flex: 1,
     },
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.3)', // Затемнення
+        position: 'relative',
+    },
+    overlayDim: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.20)',
+    },
+    overlayGradient: {
+      ...StyleSheet.absoluteFillObject,
     },
     safeArea: {
         flex: 1,
         justifyContent: 'flex-end',
+        paddingBottom: 44,
     },
     loadingOverlay: {
         ...StyleSheet.absoluteFillObject,
@@ -133,19 +143,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     logo: {
-        width: 256, 
-        height: 128, 
-    },
-    buttonsWrapper: {
-        paddingHorizontal: 0, 
+        width: 240,
+        height: 120,
     },
     buttonRow: {
-        paddingHorizontal: 24,
-        paddingBottom: 48, 
-        flexDirection: 'row',
-        gap: 16, 
+      flexDirection: 'row',
+      gap: 16,
     },
     buttonContainer: {
-        flex: 1,
-    }
-});
+      flex: 1,
+    },
+    actions: {
+      paddingHorizontal: 24,
+    },
+}); 

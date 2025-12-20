@@ -3,7 +3,7 @@ export interface ClassItem {
   time: string;
   name: string;
   trainer: string;
-  status: 'AVAILABLE' | 'WAITLIST' | 'FULL';
+  status: 'AVAILABLE' | 'WAITLIST' | 'FULL' | 'BOOKED' | 'FINISHED' | 'CANCELLED';
   avatar: string;
 }
 

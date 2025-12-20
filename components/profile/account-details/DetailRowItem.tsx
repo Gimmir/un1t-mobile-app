@@ -18,27 +18,44 @@ export function DetailRowItem(props: {
   const rawRowValue = typeof row.value === 'string' ? row.value : '';
   const trimmedValue = rawRowValue.trim();
   const isValueMissing = trimmedValue.length === 0;
-  const displayValue = isValueMissing ? 'N/A' : row.value;
+  const viewValue = isValueMissing ? 'N/A' : row.value;
+  const pickerValue = isValueMissing ? row.placeholder ?? 'Select' : row.value;
+  const isEditingMultiline = Boolean(isEditing && formKey && !row.isDate && !row.isCountry && row.multiline);
 
   return (
-    <View style={[styles.row, isLast && styles.rowLast]}>
+    <View style={[styles.row, isEditingMultiline && styles.rowMultiline, isLast && styles.rowLast]}>
       <Text style={styles.rowLabel}>{row.label}</Text>
       {isEditing && formKey ? (
         row.isDate ? (
-          <TouchableOpacity style={styles.actionButton} onPress={onDobPress}>
-            <Text style={[styles.rowValue, isValueMissing && styles.rowValueMissing]}>
-              {displayValue}
+          <TouchableOpacity
+            accessibilityRole="button"
+            activeOpacity={0.8}
+            style={styles.pickerButton}
+            onPress={onDobPress}
+            hitSlop={8}
+          >
+            <Text style={[styles.pickerText, isValueMissing && styles.pickerPlaceholder]}>
+              {pickerValue}
             </Text>
           </TouchableOpacity>
         ) : row.isCountry ? (
-          <TouchableOpacity style={styles.actionButton} onPress={onCountryPress}>
-            <Text style={[styles.rowValue, isValueMissing && styles.rowValueMissing]}>
-              {displayValue}
+          <TouchableOpacity
+            accessibilityRole="button"
+            activeOpacity={0.8}
+            style={styles.pickerButton}
+            onPress={onCountryPress}
+            hitSlop={8}
+          >
+            <Text style={[styles.pickerText, isValueMissing && styles.pickerPlaceholder]}>
+              {pickerValue}
             </Text>
           </TouchableOpacity>
         ) : (
           <TextInput
-            style={[styles.input, row.multiline ? styles.inputMultiline : undefined]}
+            style={[
+              styles.input,
+              row.multiline ? styles.inputMultiline : undefined,
+            ]}
             value={formValues[formKey] ?? ''}
             onChangeText={(text) => onChange(formKey, text)}
             placeholder={row.placeholder}
@@ -48,6 +65,7 @@ export function DetailRowItem(props: {
             multiline={row.multiline}
             autoComplete={row.autoComplete}
             textContentType={row.textContentType}
+            underlineColorAndroid="transparent"
           />
         )
       ) : (
@@ -56,7 +74,7 @@ export function DetailRowItem(props: {
           numberOfLines={row.valueNumberOfLines ?? 1}
           ellipsizeMode={row.valueEllipsizeMode ?? 'tail'}
         >
-          {displayValue}
+          {viewValue}
         </Text>
       )}
     </View>
@@ -70,17 +88,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#2A2A2E',
+    borderBottomColor: '#1F1F23',
     gap: 16,
+  },
+  rowMultiline: {
+    alignItems: 'flex-start',
   },
   rowLast: {
     borderBottomWidth: 0,
   },
   rowLabel: {
+    flexShrink: 1,
+    maxWidth: '45%',
     color: '#E4E4E7',
     fontSize: 14,
-    fontWeight: '700',
-    letterSpacing: 0.2,
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
   rowValue: {
     flex: 1,
@@ -96,19 +119,42 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     textAlign: 'right',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: '#1F1F23',
+    borderRadius: 10,
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '500',
     letterSpacing: 0.2,
-    paddingVertical: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
   },
   inputMultiline: {
-    minHeight: 48,
-    textAlignVertical: 'center',
+    minHeight: 64,
+    textAlign: 'left',
+    textAlignVertical: 'top',
+    paddingVertical: 12,
   },
-  actionButton: {
+  pickerButton: {
     flex: 1,
     alignItems: 'flex-end',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: '#1F1F23',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  pickerText: {
+    textAlign: 'right',
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: 0.2,
+  },
+  pickerPlaceholder: {
+    color: '#71717A',
   },
 });
-
