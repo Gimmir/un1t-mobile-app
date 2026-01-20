@@ -17,7 +17,13 @@ export function useEventDisplayData(event: Event | null | undefined) {
 
   // Check if data is already in cache
   const cachedCoach = coachId ? queryClient.getQueryData<User>(['users', coachId]) : null;
-  const cachedStudio = studioId ? queryClient.getQueryData<Studio>(['studios', studioId]) : null;
+  const cachedStudio = studioId
+    ? queryClient.getQueryData<Studio>(['studios', studioId, 'auth', null]) ??
+      queryClient.getQueryData<Studio>(['studios', studioId, 'public', null]) ??
+      queryClient.getQueryData<Studio>(['studios', studioId, 'auth']) ??
+      queryClient.getQueryData<Studio>(['studios', studioId, 'public']) ??
+      queryClient.getQueryData<Studio>(['studios', studioId])
+    : null;
 
   // Only fetch if not in cache
   const { data: fetchedCoach } = useUser(cachedCoach ? null : coachId);

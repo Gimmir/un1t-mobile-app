@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 type Props = Omit<TextInputProps, 'value' | 'onChangeText' | 'secureTextEntry'> & {
   value: string;
@@ -28,7 +30,7 @@ export const PasswordInputCard = React.forwardRef<TextInput, Props>(function Pas
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#71717A"
+        placeholderTextColor={ colors.text.muted }
         secureTextEntry={!isVisible}
         autoCapitalize={autoCapitalize}
         autoCorrect={autoCorrect}
@@ -42,7 +44,7 @@ export const PasswordInputCard = React.forwardRef<TextInput, Props>(function Pas
         style={styles.eyeButton}
         hitSlop={8}
       >
-        <Ionicons name={isVisible ? 'eye-off' : 'eye'} size={20} color="#A1A1AA" />
+        <Ionicons name={isVisible ? 'eye-off' : 'eye'} size={20} color={ colors.text.secondary } />
       </TouchableOpacity>
     </View>
   );
@@ -65,8 +67,8 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.medium,
     letterSpacing: 0.2,
     paddingVertical: 4,
   },

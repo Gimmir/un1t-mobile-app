@@ -1,5 +1,6 @@
 import { EVENT_STATUSES, type Event, type EventStatus } from '@/DATA_TYPES/event';
 import { api } from '@/src/lib/axios';
+import { parseEventDateTime } from '@/src/features/events/utils/event-datetime';
 
 function unwrapData<T>(response: unknown): T {
   if (response && typeof response === 'object' && 'data' in response) {
@@ -53,10 +54,10 @@ function deriveStatusFromTime(args: { status: EventStatus; startTime?: string; e
   if (args.status !== 'active') return args.status;
 
   const now = Date.now();
-  const end = args.endTime ? Date.parse(args.endTime) : NaN;
+  const end = args.endTime ? parseEventDateTime(args.endTime)?.getTime() ?? NaN : NaN;
   if (!Number.isNaN(end) && end < now) return 'finished';
 
-  const start = args.startTime ? Date.parse(args.startTime) : NaN;
+  const start = args.startTime ? parseEventDateTime(args.startTime)?.getTime() ?? NaN : NaN;
   if (!Number.isNaN(start) && start < now && Number.isNaN(end)) return 'finished';
 
   return args.status;
@@ -80,9 +81,11 @@ function normalizeEvent(rawEvent: Record<string, unknown>): Event {
 
   let duration = (rawEvent.duration as number) || 0;
   if (!duration && startTime && endTime) {
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
+    const start = parseEventDateTime(startTime);
+    const end = parseEventDateTime(endTime);
+    if (start && end) {
+      duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
+    }
   }
 
   const coachRef = rawEvent.coach;

@@ -1,0 +1,35 @@
+diff --git a/node_modules/react-native/React/Base/RCTUtils.mm b/node_modules/react-native/React/Base/RCTUtils.mm
+index af16d36..432fd12 100644
+--- a/node_modules/react-native/React/Base/RCTUtils.mm
++++ b/node_modules/react-native/React/Base/RCTUtils.mm
+@@ -394,7 +394,16 @@ CGFloat RCTFontSizeMultiplier(void)
+     };
+   });
+ 
+-  return mapping[RCTSharedApplication().preferredContentSizeCategory].floatValue;
++  UIApplication *app = RCTSharedApplication();
++  if (!app) {
++    return 1.0;
++  }
++  UIContentSizeCategory category = app.preferredContentSizeCategory;
++  if (!category) {
++    return 1.0;
++  }
++  NSNumber *multiplier = mapping[category];
++  return multiplier ? multiplier.floatValue : 1.0;
+ }
+ 
+ UIDeviceOrientation RCTDeviceOrientation(void)
+diff --git a/node_modules/react-native/ReactCommon/hermes/executor/HermesExecutorFactory.cpp b/node_modules/react-native/ReactCommon/hermes/executor/HermesExecutorFactory.cpp
+index 0b72b72..b228880 100644
+--- a/node_modules/react-native/ReactCommon/hermes/executor/HermesExecutorFactory.cpp
++++ b/node_modules/react-native/ReactCommon/hermes/executor/HermesExecutorFactory.cpp
+@@ -6,6 +6,8 @@
+  */
+ 
+ #include "HermesExecutorFactory.h"
++#include <thread>
++#include <expected>
+ 
+ #include <cxxreact/MessageQueueThread.h>
+ #include <cxxreact/TraceSection.h>

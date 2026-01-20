@@ -2,10 +2,16 @@ import type { Event } from '@/DATA_TYPES/event';
 import { useBookings } from '@/src/features/bookings/hooks/use-bookings';
 import { useCurrentUser } from '@/src/features/users/hooks/use-users';
 import { Ionicons } from '@expo/vector-icons';
-import { format, isToday, parseISO } from 'date-fns';
 import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { HexagonAvatar } from '../classes/hexagon-avatar';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
+import {
+  formatEventDate,
+  formatEventTime,
+  isEventToday,
+} from '@/src/features/events/utils/event-datetime';
 
 type EventCardProps = {
   event: Event;
@@ -28,15 +34,15 @@ const STATUS_STYLES = {
   },
   cancelled: {
     label: 'Cancelled',
-    textColor: '#A1A1AA',
+    textColor: colors.text.secondary,
     badgeBg: 'rgba(161, 161, 170, 0.12)',
-    accent: '#3F3F46',
+    accent: colors.border.strong,
   },
   finished: {
     label: 'Ended',
-    textColor: '#A1A1AA',
+    textColor: colors.text.secondary,
     badgeBg: 'rgba(113, 113, 122, 0.18)',
-    accent: '#52525B',
+    accent: colors.text.placeholder,
   },
 } as const;
 
@@ -74,31 +80,18 @@ export function EventCard({ event, onPress, statusLabelOverride }: EventCardProp
     statusLabelOverride ?? (shouldShowBooked ? 'Booked' : statusStyle.label);
 
   const startTime = useMemo(() => {
-    if (!event.start_time) return '--:--';
-    try {
-      return format(parseISO(event.start_time), 'HH:mm');
-    } catch {
-      return '--:--';
-    }
+    return formatEventTime(event.start_time);
   }, [event.start_time]);
 
   const endTime = useMemo(() => {
-    if (!event.end_time) return '--:--';
-    try {
-      return format(parseISO(event.end_time), 'HH:mm');
-    } catch {
-      return '--:--';
-    }
+    return formatEventTime(event.end_time);
   }, [event.end_time]);
 
   const dateLabel = useMemo(() => {
     if (!event.start_time) return '';
-    try {
-      const startDate = parseISO(event.start_time);
-      return isToday(startDate) ? 'Today' : format(startDate, 'MMM d');
-    } catch {
-      return '';
-    }
+    return isEventToday(event.start_time)
+      ? 'Today'
+      : formatEventDate(event.start_time, 'MMM d');
   }, [event.start_time]);
 
   const coachName = useMemo(() => {
@@ -118,6 +111,7 @@ export function EventCard({ event, onPress, statusLabelOverride }: EventCardProp
     event.status === 'cancelled' ||
     event.status === 'finished' ||
     !coachProfile?.avatar;
+  const creditCost = 1;
   const coachImageUri =
     coachProfile?.avatar ??
     `https://i.pravatar.cc/100?u=${coachProfile?._id ?? (typeof event.coach === 'string' ? event.coach : 'coach')}`;
@@ -180,9 +174,9 @@ export function EventCard({ event, onPress, statusLabelOverride }: EventCardProp
             </Text>
             <View style={styles.actionRow}>
               <Text style={styles.creditText}>
-                {event.credit_cost || 0} {(event.credit_cost || 0) === 1 ? 'CREDIT' : 'CREDITS'}
+                {creditCost} {creditCost === 1 ? 'CREDIT' : 'CREDITS'}
               </Text>
-              <Ionicons name="chevron-forward" size={18} color="#71717A" />
+              <Ionicons name="chevron-forward" size={18} color={ colors.text.muted } />
             </View>
           </View>
         </View>
@@ -198,8 +192,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     overflow: 'hidden',
   },
   cancelled: {
@@ -208,7 +202,7 @@ const styles = StyleSheet.create({
   finished: {
     opacity: 0.7,
     backgroundColor: '#0B0B0D',
-    borderColor: '#27272A',
+    borderColor: colors.surface.panel,
   },
   accent: {
     width: 4,
@@ -229,16 +223,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   timeText: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.heavy,
     color: '#FFFFFF',
     letterSpacing: 1,
   },
   timeMeta: {
     marginTop: 4,
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#6B7280',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: colors.text.muted,
     letterSpacing: 1,
   },
   statusBadge: {
@@ -247,8 +241,8 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   statusText: {
-    fontSize: 11,
-    fontWeight: '800',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -256,16 +250,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   tagText: {
-    color: '#A1A1AA',
-    fontSize: 11,
-    fontWeight: '800',
+    color: colors.text.secondary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1,
     textTransform: 'uppercase',
     marginBottom: 4,
   },
   eventName: {
-    fontSize: 18,
-    fontWeight: '900',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.heavy,
     color: '#FFFFFF',
     letterSpacing: 0.8,
   },
@@ -286,16 +280,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   coachLabel: {
-    fontSize: 11,
-    color: '#6B7280',
+    fontSize: typography.size.sm,
+    color: colors.text.muted,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontWeight: '700',
+    fontWeight: typography.weight.bold,
   },
   coachName: {
     marginTop: 2,
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
     color: '#E4E4E7',
     letterSpacing: 0.4,
   },
@@ -304,9 +298,9 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   locationText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#A1A1AA',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
+    color: colors.text.secondary,
     letterSpacing: 1,
     textTransform: 'uppercase',
     maxWidth: 140,
@@ -317,9 +311,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   creditText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#6B7280',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
+    color: colors.text.muted,
     letterSpacing: 1,
   },
 });

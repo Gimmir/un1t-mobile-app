@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '@/src/theme/colors';
 import { AuthHeader } from './auth-header';
 
 interface AuthLayoutProps {
@@ -22,7 +23,7 @@ export function AuthLayout({
   showHeader = true,
   scrollable = true,
   onBack,
-  disableKeyboardAvoidance = false,
+  disableKeyboardAvoidance = true,
 }: AuthLayoutProps) {
   const content = scrollable ? (
     <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -33,7 +34,7 @@ export function AuthLayout({
   );
 
   return (
-    <View className="flex-1 bg-[#191919]">
+    <View className="flex-1" style={{ backgroundColor: colors.surface.app }}>
       <Stack.Screen options={{ headerShown: false }} />
       <StatusBar style="light" />
 

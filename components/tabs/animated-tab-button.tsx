@@ -9,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { styles } from './styles';
 import { CustomIconType } from './types';
+import { colors } from '@/src/theme/colors';
 
 interface AnimatedTabButtonProps {
   label: string;
@@ -31,7 +32,7 @@ export const AnimatedTabButton: React.FC<AnimatedTabButtonProps> = ({
       duration: 300,
       easing: Easing.inOut(Easing.ease),
     });
-  }, [focused]);
+  }, [focused, scale]);
 
   const animatedBackgroundStyle = useAnimatedStyle(() => {
     return {
@@ -41,7 +42,8 @@ export const AnimatedTabButton: React.FC<AnimatedTabButtonProps> = ({
   });
 
   const buttonStyle = isProfile ? styles.profileTabButton : styles.defaultTabButton;
-  const contentColor = focused ? '#FFFFFF' : '#A1A1AA';
+  const contentColor = focused ? '#FFFFFF' : colors.text.secondary;
+  const iconOpacity = focused ? 1 : 0.6;
 
   const handlePress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -53,8 +55,17 @@ export const AnimatedTabButton: React.FC<AnimatedTabButtonProps> = ({
       <Animated.View style={[styles.animatedFocusBackgroundV3, animatedBackgroundStyle]} />
 
       <View style={styles.tabContentWrapperV2}>
-        <CustomIconComponent color={contentColor} width={24} height={24} />
-        <Text style={[styles.tabLabel, { color: contentColor }]}>{label}</Text>
+        <View style={{ opacity: iconOpacity }}>
+          <CustomIconComponent color={contentColor} width={24} height={24} />
+        </View>
+        <Text
+          style={[styles.tabLabel, { color: contentColor }]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          allowFontScaling={false}
+        >
+          {label}
+        </Text>
       </View>
     </TouchableOpacity>
   );

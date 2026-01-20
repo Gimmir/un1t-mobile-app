@@ -2,8 +2,9 @@ import type { Event } from '@/DATA_TYPES/event';
 import { useEvents } from '@/src/features/events/hooks/use-events';
 import { useStudios } from '@/src/features/studios/hooks/use-studios';
 import { useCurrentUser } from '@/src/features/users/hooks/use-users';
-import { isSameDay, parseISO } from 'date-fns';
+import { isSameDay } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
+import { parseEventDateTime } from '@/src/features/events/utils/event-datetime';
 
 type StudioOption = { id: string; title: string };
 
@@ -69,9 +70,9 @@ export function useClassesScreenData(args: { currentWeekDate: Date; selectedDate
       if (!event || !event.start_time) continue;
       
       try {
-        const d = parseISO(event.start_time);
-        if (d.getMonth() === month && d.getFullYear() === year) {
-          set.add(d.getDate());
+        const parsed = parseEventDateTime(event.start_time);
+        if (parsed && parsed.getMonth() === month && parsed.getFullYear() === year) {
+          set.add(parsed.getDate());
         }
       } catch {}
     }
@@ -95,18 +96,23 @@ export function useClassesScreenData(args: { currentWeekDate: Date; selectedDate
       }
       
       try {
-        const start = parseISO(event.start_time);
-        const matches = isSameDay(start, selectedFullDate);
+        const start = parseEventDateTime(event.start_time);
+        const matches = start ? isSameDay(start, selectedFullDate) : false;
         
         if (matches) {
           dayEvents.push(event);
         }
-      } catch (err) {
+      } catch {
         // Skip events with invalid dates
       }
     }
     
-    dayEvents.sort((a, b) => (a.start_time ?? '').localeCompare(b.start_time ?? ''));
+    dayEvents.sort((a, b) => {
+      const aDate = parseEventDateTime(a.start_time);
+      const bDate = parseEventDateTime(b.start_time);
+      if (aDate && bDate) return aDate.getTime() - bDate.getTime();
+      return (a.start_time ?? '').localeCompare(b.start_time ?? '');
+    });
     return dayEvents;
   }, [eventsForStudio, selectedFullDate]);
 

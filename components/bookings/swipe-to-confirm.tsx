@@ -1,5 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Animated, PanResponder, StyleSheet, Text, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 type SwipeToConfirmProps = {
   onConfirm: () => void;
@@ -16,7 +18,7 @@ export function SwipeToConfirm({ onConfirm, disabled, label = 'Swipe to confirm'
   const [didConfirm, setDidConfirm] = useState(false);
 
   const maxTranslateX = useMemo(() => {
-    const width = Math.max(0, trackWidth - HANDLE_SIZE - HORIZONTAL_PADDING * 2);
+    const width = Math.max(0, trackWidth - HANDLE_SIZE - HORIZONTAL_PADDING);
     return width;
   }, [trackWidth]);
 
@@ -99,8 +101,8 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     paddingHorizontal: HORIZONTAL_PADDING,
     justifyContent: 'center',
     overflow: 'hidden',
@@ -109,16 +111,16 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   trackLabel: {
-    color: '#A1A1AA',
-    fontSize: 12,
-    fontWeight: '900',
+    color: colors.text.secondary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
     textAlign: 'center',
     paddingHorizontal: HANDLE_SIZE + 6,
   },
   trackLabelDisabled: {
-    color: '#71717A',
+    color: colors.text.muted,
   },
   handle: {
     position: 'absolute',
@@ -135,9 +137,8 @@ const styles = StyleSheet.create({
   },
   handleArrow: {
     color: '#0A0A0A',
-    fontSize: 18,
-    fontWeight: '900',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1,
   },
 });
-

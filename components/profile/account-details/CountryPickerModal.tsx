@@ -1,10 +1,10 @@
 import { COUNTRY_NAMES } from '@/constants/country-names';
 import { BlurView } from 'expo-blur';
 import React, { useMemo, useState } from 'react';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 import {
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -59,62 +59,60 @@ export function CountryPickerModal(props: {
       visible={visible}
       onRequestClose={handleClose}
     >
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <BlurView intensity={20} tint="dark" style={styles.backdrop}>
-          <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={handleClose} />
+      <BlurView intensity={20} tint="dark" style={styles.backdrop}>
+        <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={handleClose} />
 
-          <View style={styles.wrapper}>
-            <BlurView intensity={80} tint="dark" className="overflow-hidden rounded-3xl border border-white/20">
-              <View className="bg-black/40 pb-6 pt-2">
-                <View className="flex-row justify-between items-center px-6 py-4 border-b border-white/10">
-                  <Text className="text-zinc-400 text-sm tracking-wider font-bold">COUNTRY</Text>
-                  <TouchableOpacity
-                    onPress={handleClose}
-                    className="bg-white/10 px-4 py-1.5 rounded-full"
-                  >
-                    <Text className="text-white font-bold text-sm">Close</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.searchWrap}>
-                  <TextInput
-                    value={countrySearch}
-                    onChangeText={setCountrySearch}
-                    placeholder="Search country"
-                    placeholderTextColor="#6B7280"
-                    style={styles.searchInput}
-                    autoFocus
-                  />
-                </View>
-
-                <ScrollView
-                  style={{ maxHeight: 300 }}
-                  contentContainerStyle={styles.listContent}
-                  keyboardShouldPersistTaps="handled"
+        <View style={styles.wrapper}>
+          <BlurView intensity={80} tint="dark" className="overflow-hidden rounded-3xl border border-white/20">
+            <View className="bg-black/40 pb-6 pt-2">
+              <View className="flex-row justify-between items-center px-6 py-4 border-b border-white/10">
+                <Text className="text-zinc-400 text-sm tracking-wider font-bold">COUNTRY</Text>
+                <TouchableOpacity
+                  onPress={handleClose}
+                  className="bg-white/10 px-4 py-1.5 rounded-full"
                 >
-                  {filteredCountryOptions.map((option) => {
-                    const selected = selectedCode === option.code;
-                    return (
-                      <TouchableOpacity
-                        key={option.code}
-                        style={[styles.item, selected && styles.itemSelected]}
-                        onPress={() => handleSelect(option.code)}
-                      >
-                        <Text style={[styles.itemText, selected && styles.itemTextSelected]}>
-                          {option.name}
-                        </Text>
-                        <Text style={[styles.itemCode, selected && styles.itemTextSelected]}>
-                          {option.code}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
+                  <Text className="text-white font-bold text-sm">Close</Text>
+                </TouchableOpacity>
               </View>
-            </BlurView>
-          </View>
-        </BlurView>
-      </KeyboardAvoidingView>
+
+              <View style={styles.searchWrap}>
+                <TextInput
+                  value={countrySearch}
+                  onChangeText={setCountrySearch}
+                  placeholder="Search country"
+                  placeholderTextColor={ colors.text.muted }
+                  style={styles.searchInput}
+                  autoFocus
+                />
+              </View>
+
+              <ScrollView
+                style={{ maxHeight: 300 }}
+                contentContainerStyle={styles.listContent}
+                keyboardShouldPersistTaps="handled"
+              >
+                {filteredCountryOptions.map((option) => {
+                  const selected = selectedCode === option.code;
+                  return (
+                    <TouchableOpacity
+                      key={option.code}
+                      style={[styles.item, selected && styles.itemSelected]}
+                      onPress={() => handleSelect(option.code)}
+                    >
+                      <Text style={[styles.itemText, selected && styles.itemTextSelected]}>
+                        {option.name}
+                      </Text>
+                      <Text style={[styles.itemCode, selected && styles.itemTextSelected]}>
+                        {option.code}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          </BlurView>
+        </View>
+      </BlurView>
     </Modal>
   );
 }
@@ -143,7 +141,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    fontSize: 14,
+    fontSize: typography.size.md,
   },
   listContent: {
     paddingHorizontal: 16,
@@ -162,15 +160,15 @@ const styles = StyleSheet.create({
   },
   itemText: {
     color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.medium,
   },
   itemTextSelected: {
     color: '#FACC15',
   },
   itemCode: {
-    color: '#71717A',
-    fontSize: 12,
-    fontWeight: '700',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
   },
 });

@@ -13,12 +13,12 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors } from '@/src/theme/colors';
 
 export default function AccountDetailsScreen() {
   const router = useRouter();
@@ -376,31 +376,25 @@ export default function AccountDetailsScreen() {
         onSave={handleSave}
       />
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-        >
-          {sections.map((section) => (
-            <DetailSectionCard
-              key={section.key}
-              section={section}
-              isEditing={isEditing}
-              formValues={formValues}
-              onChange={handleInputChange}
-              onDobPress={handleDobPress}
-              onCountryPress={handleCountryPress}
-            />
-          ))}
-        </ScrollView>
-      </KeyboardAvoidingView>
+        {sections.map((section) => (
+          <DetailSectionCard
+            key={section.key}
+            section={section}
+            isEditing={isEditing}
+            formValues={formValues}
+            onChange={handleInputChange}
+            onDobPress={handleDobPress}
+            onCountryPress={handleCountryPress}
+          />
+        ))}
+      </ScrollView>
 
       <DobPickerModal
         visible={isEditing && showDatePicker}
@@ -423,10 +417,7 @@ export default function AccountDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191919',
-  },
-  keyboardView: {
-    flex: 1,
+    backgroundColor: colors.surface.app,
   },
   scroll: {
     flex: 1,

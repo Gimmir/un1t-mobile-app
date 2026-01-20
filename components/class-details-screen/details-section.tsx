@@ -15,6 +15,8 @@ export function ClassDetailsDetailsSection({
   dateLabel: string;
   timeRange: string;
 }) {
+  const creditCost = 1;
+
   return (
     <View style={styles.detailsBlock}>
       <Text style={styles.sectionKicker}>DETAILS</Text>
@@ -29,7 +31,7 @@ export function ClassDetailsDetailsSection({
         <View style={styles.detailsDivider} />
         <DetailRow
           label="CREDITS"
-          value={`${event.credit_cost} ${event.credit_cost === 1 ? 'CREDIT' : 'CREDITS'}`}
+          value={`${creditCost} ${creditCost === 1 ? 'CREDIT' : 'CREDITS'}`}
         />
       </View>
 
@@ -45,4 +47,3 @@ export function ClassDetailsDetailsSection({
     </View>
   );
 }
-

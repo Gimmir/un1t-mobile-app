@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export function SettingsHeader(props: { title: string; onBack: () => void }) {
   const { title, onBack } = props;
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
   },
   backButton: {
     width: 72,
@@ -44,9 +46,8 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
   },
 });
-

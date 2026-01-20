@@ -7,7 +7,11 @@ import { StorageKeys, storageUtils } from './storage';
 /**
  * Base API URL - Update this with your backend URL
  */
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || process.env.API_URL || 'https://un1t-back-end-development.up.railway.app';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || process.env.API_URL;
+
+if (!API_BASE_URL) {
+  throw new Error('Missing EXPO_PUBLIC_API_URL (or API_URL) environment variable.');
+}
 
 /**
  * Axios instance with automatic token injection and error handling

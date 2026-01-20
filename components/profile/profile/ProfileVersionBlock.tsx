@@ -1,5 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export function ProfileVersionBlock(props: { version: string; company: string }) {
   const { version, company } = props;
@@ -17,9 +19,8 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   versionText: {
-    color: '#6B7280',
-    fontSize: 11,
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
     letterSpacing: 1,
   },
 });
-

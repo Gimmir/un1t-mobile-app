@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
+import { colors } from '@/src/theme/colors';
 
 export function AuthTextureBackground(props: { height?: number }) {
   const { height = 520 } = props;
@@ -13,7 +14,7 @@ export function AuthTextureBackground(props: { height?: number }) {
         resizeMode="cover"
       />
       <LinearGradient
-        colors={['rgba(25,25,25,0.10)', 'rgba(25,25,25,0.70)', '#191919']}
+        colors={['rgba(25,25,25,0.10)', 'rgba(25,25,25,0.70)', colors.surface.app]}
         locations={[0, 0.55, 1]}
         style={styles.heroOverlay}
       />
@@ -41,4 +42,3 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
 });
-

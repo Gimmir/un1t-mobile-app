@@ -1,6 +1,8 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useState } from 'react';
 import { Control, Controller, FieldError, FieldValues, Path } from 'react-hook-form';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 import {
   Text,
   TextInput,
@@ -32,7 +34,7 @@ export function CustomInput<T extends FieldValues>({
   helperText,
   variant = 'card',
   leadingIconName,
-  leadingIconColor = '#A1A1AA',
+  leadingIconColor = colors.text.secondary,
   ...textInputProps
 }: CustomInputProps<T>) {
   const [showPassword, setShowPassword] = useState(false);
@@ -100,9 +102,9 @@ export function CustomInput<T extends FieldValues>({
                 onFocusProp?.(e);
               }}
               placeholder={placeholder}
-              placeholderTextColor="#71717A"
+              placeholderTextColor={ colors.text.muted }
               className={`flex-1 ${getTextColor(!!error)}`}
-              style={{ fontSize: 16 }}
+              style={{ fontSize: typography.size.lg }}
               secureTextEntry={isPassword && !showPassword}
               keyboardType={getKeyboardType()}
               autoComplete={getAutoComplete()}
@@ -114,13 +116,13 @@ export function CustomInput<T extends FieldValues>({
             
             {isPassword && (
               <TouchableOpacity accessibilityRole="button" onPress={() => setShowPassword(!showPassword)}>
-                <IconSymbol name={showPassword ? 'eye.slash' : 'eye'} size={20} color="#A1A1AA" />
+                <IconSymbol name={showPassword ? 'eye.slash' : 'eye'} size={20} color={ colors.text.secondary } />
               </TouchableOpacity>
             )}
             
             {showClearButton && value && value.length > 0 && !isPassword && (
               <TouchableOpacity accessibilityRole="button" onPress={() => onChange('')}>
-                <IconSymbol name="xmark" size={18} color="#A1A1AA" />
+                <IconSymbol name="xmark" size={18} color={ colors.text.secondary } />
               </TouchableOpacity>
             )}
           </View>
@@ -130,7 +132,7 @@ export function CustomInput<T extends FieldValues>({
           )}
           
           {helperText && !error && (
-            <Text className="text-zinc-500 text-[11px] leading-4 mt-1 px-1">{helperText}</Text>
+            <Text className="text-zinc-500 text-xs leading-4 mt-1 px-1">{helperText}</Text>
           )}
         </View>
       )}

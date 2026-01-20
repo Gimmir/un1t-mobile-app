@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmptyScheduleState, type ScheduleTab } from './empty-schedule-state';
 import { MyScheduleTabs } from './my-schedule-tabs';
@@ -12,17 +11,13 @@ import { useBookings } from '@/src/features/bookings/hooks/use-bookings';
 import { useEvents } from '@/src/features/events/hooks/use-events';
 import type { Event } from '@/DATA_TYPES/event';
 import { useCurrentUser } from '@/src/features/users/hooks/use-users';
-import { parseISO } from 'date-fns';
 import { BookedEventCard } from './booked-event-card';
-import { useNavigation } from '@react-navigation/native';
+import { parseEventDateTime } from '@/src/features/events/utils/event-datetime';
 
 export function MyScheduleScreen() {
   const router = useRouter();
-  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const [tab, setTab] = useState<ScheduleTab>('upcoming');
-  const params = useLocalSearchParams<{ returnTo?: string }>();
-  const returnTo = typeof params.returnTo === 'string' ? params.returnTo : null;
   const {
     data: bookings = [],
     isLoading: bookingsLoading,
@@ -96,8 +91,8 @@ export function MyScheduleScreen() {
       }
     }
 
-    upcoming.sort((a, b) => (getEventStartISO(a) ?? '').localeCompare(getEventStartISO(b) ?? ''));
-    history.sort((a, b) => (getEventStartISO(b) ?? '').localeCompare(getEventStartISO(a) ?? ''));
+    upcoming.sort((a, b) => compareEventStart(a, b));
+    history.sort((a, b) => compareEventStart(b, a));
 
     return { upcomingEvents: upcoming, historyEvents: history };
   }, [bookings, currentUser?._id, eventsById]);
@@ -119,28 +114,7 @@ export function MyScheduleScreen() {
 
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <View style={styles.topBar}>
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={() => {
-              if (returnTo) {
-                router.replace(returnTo as any);
-                return;
-              }
-              if (navigation?.canGoBack?.()) {
-                navigation.goBack();
-                return;
-              }
-              router.replace('/classes');
-            }}
-            activeOpacity={0.8}
-            style={styles.backButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons name="chevron-back" size={22} color="#FFFFFF" />
-          </TouchableOpacity>
-
           <Text style={styles.title}>MY SCHEDULE</Text>
-          <View style={styles.topBarSpacer} />
         </View>
 
         <MyScheduleTabs tab={tab} setTab={setTab} />
@@ -208,12 +182,8 @@ export function MyScheduleScreen() {
   );
 }
 
-function safeParseISO(value: string): Date | null {
-  try {
-    return parseISO(value);
-  } catch {
-    return null;
-  }
+function safeParseEventDate(value: string): Date | null {
+  return parseEventDateTime(value);
 }
 
 function getEventStartISO(event: Event): string | null {
@@ -226,11 +196,11 @@ function getEventEndISO(event: Event): string | null {
 
 function isEventEnded(event: Event, now: Date): boolean {
   const endISO = getEventEndISO(event);
-  const end = endISO ? safeParseISO(endISO) : null;
+  const end = endISO ? safeParseEventDate(endISO) : null;
   if (end) return end < now;
 
   const startISO = getEventStartISO(event);
-  const start = startISO ? safeParseISO(startISO) : null;
+  const start = startISO ? safeParseEventDate(startISO) : null;
   if (!start) return false;
 
   const durationMinutes = event.duration ?? null;
@@ -240,4 +210,11 @@ function isEventEnded(event: Event, now: Date): boolean {
   }
 
   return event.status === 'finished' && start < now;
+}
+
+function compareEventStart(a: Event, b: Event): number {
+  const aStart = parseEventDateTime(getEventStartISO(a));
+  const bStart = parseEventDateTime(getEventStartISO(b));
+  if (aStart && bStart) return aStart.getTime() - bStart.getTime();
+  return (getEventStartISO(a) ?? '').localeCompare(getEventStartISO(b) ?? '');
 }

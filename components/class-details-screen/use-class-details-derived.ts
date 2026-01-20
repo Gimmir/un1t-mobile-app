@@ -1,6 +1,7 @@
 import type { Event } from '@/DATA_TYPES/event';
-import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
+import { colors } from '@/src/theme/colors';
+import { formatEventDate, formatEventTime, parseEventDateTime } from '@/src/features/events/utils/event-datetime';
 
 type StatusConfig = {
   badgeText: string;
@@ -11,15 +12,6 @@ type StatusConfig = {
   ctaTextColor: string;
   ctaDisabled: boolean;
 };
-
-function safeFormat(iso: string | null | undefined, pattern: string) {
-  if (!iso) return '';
-  try {
-    return format(parseISO(iso), pattern);
-  } catch {
-    return '';
-  }
-}
 
 export function useClassDetailsDerived(args: {
   displayEvent: Event | null | undefined;
@@ -32,14 +24,42 @@ export function useClassDetailsDerived(args: {
   const title = useMemo(() => (displayEvent?.name ?? 'CLASS').toUpperCase(), [displayEvent?.name]);
   const status = displayEvent?.status ?? 'active';
 
-  const startTime = useMemo(() => safeFormat(displayEvent?.start_time, 'HH:mm'), [displayEvent?.start_time]);
-  const endTime = useMemo(() => safeFormat(displayEvent?.end_time, 'HH:mm'), [displayEvent?.end_time]);
-  const dateLabel = useMemo(() => safeFormat(displayEvent?.start_time, 'd MMMM yyyy'), [displayEvent?.start_time]);
+  const startTime = useMemo(
+    () => formatEventTime(displayEvent?.start_time, ''),
+    [displayEvent?.start_time]
+  );
+  const endTime = useMemo(
+    () => formatEventTime(displayEvent?.end_time, ''),
+    [displayEvent?.end_time]
+  );
+  const startTimeISO = displayEvent?.start_time ?? (displayEvent as any)?.startTime ?? null;
+  const endTimeISO = displayEvent?.end_time ?? (displayEvent as any)?.endTime ?? null;
+  const dateLabel = useMemo(
+    () => formatEventDate(displayEvent?.start_time, 'd MMMM yyyy'),
+    [displayEvent?.start_time]
+  );
 
   const timeRange = useMemo(() => {
     if (startTime && endTime) return `${startTime} — ${endTime}`;
     return startTime || endTime || '';
   }, [endTime, startTime]);
+
+  const isEventEnded = useMemo(() => {
+    const now = Date.now();
+    const end = endTimeISO ? parseEventDateTime(endTimeISO) : null;
+    if (end) return end.getTime() < now;
+
+    const start = startTimeISO ? parseEventDateTime(startTimeISO) : null;
+    if (!start) return status === 'finished';
+
+    const durationMinutes = displayEvent?.duration ?? null;
+    if (durationMinutes && durationMinutes > 0) {
+      const computedEnd = start.getTime() + durationMinutes * 60 * 1000;
+      return computedEnd < now;
+    }
+
+    return status === 'finished' && start.getTime() < now;
+  }, [displayEvent?.duration, endTimeISO, startTimeISO, status]);
 
   const statusConfig: StatusConfig = useMemo(() => {
     switch (status) {
@@ -47,20 +67,20 @@ export function useClassDetailsDerived(args: {
         return {
           badgeText: 'Cancelled',
           badgeBg: 'rgba(161, 161, 170, 0.12)',
-          badgeTextColor: '#A1A1AA',
+          badgeTextColor: colors.text.secondary,
           ctaText: 'CLASS CANCELLED',
-          ctaBg: '#27272A',
-          ctaTextColor: '#A1A1AA',
+          ctaBg: colors.surface.panel,
+          ctaTextColor: colors.text.secondary,
           ctaDisabled: true,
         };
       case 'finished':
         return {
           badgeText: 'Ended',
           badgeBg: 'rgba(113, 113, 122, 0.18)',
-          badgeTextColor: '#A1A1AA',
+          badgeTextColor: colors.text.secondary,
           ctaText: 'CLASS ENDED',
-          ctaBg: '#27272A',
-          ctaTextColor: '#A1A1AA',
+          ctaBg: colors.surface.panel,
+          ctaTextColor: colors.text.secondary,
           ctaDisabled: true,
         };
       case 'full':
@@ -69,8 +89,8 @@ export function useClassDetailsDerived(args: {
           badgeBg: 'rgba(248, 113, 113, 0.18)',
           badgeTextColor: '#F87171',
           ctaText: 'CLASS FULL',
-          ctaBg: '#27272A',
-          ctaTextColor: '#A1A1AA',
+          ctaBg: colors.surface.panel,
+          ctaTextColor: colors.text.secondary,
           ctaDisabled: true,
         };
       case 'active':
@@ -109,14 +129,17 @@ export function useClassDetailsDerived(args: {
   const studioName = displayEvent?.location?.title?.trim() || '';
 
   const eventNameForModal = displayEvent?.name || (displayEvent as any)?.title || 'Class';
-  const modalDateLabel = useMemo(() => safeFormat(displayEvent?.start_time, 'd MMM yyyy'), [displayEvent?.start_time]);
+  const modalDateLabel = useMemo(
+    () => formatEventDate(displayEvent?.start_time, 'd MMM yyyy'),
+    [displayEvent?.start_time]
+  );
   const modalStartTimeLabel = useMemo(
-    () => safeFormat(displayEvent?.start_time, 'HH:mm'),
+    () => formatEventTime(displayEvent?.start_time, ''),
     [displayEvent?.start_time]
   );
 
   const modalDuration = displayEvent?.duration ?? null;
-  const modalCreditCost = displayEvent?.credit_cost ?? 0;
+  const modalCreditCost = 1;
 
   const activeBookingId = useMemo(() => {
     const idToMatch = displayEvent?._id ?? eventId ?? null;
@@ -168,6 +191,6 @@ export function useClassDetailsDerived(args: {
     badgeText,
     badgeBg,
     badgeTextColor,
+    isEventEnded,
   };
 }
-

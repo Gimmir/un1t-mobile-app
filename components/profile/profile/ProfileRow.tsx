@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export function ProfileRow(props: {
   label: string;
@@ -27,7 +29,7 @@ export function ProfileRow(props: {
           onValueChange={onToggle}
         />
       ) : (
-        <Ionicons name="chevron-forward" size={18} color="#71717A" />
+        <Ionicons name="chevron-forward" size={18} color={ colors.text.muted } />
       )}
     </>
   );
@@ -59,7 +61,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
   },
   rowLast: {
     borderBottomWidth: 0,
@@ -71,8 +73,8 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     letterSpacing: 0.5,
   },
 });

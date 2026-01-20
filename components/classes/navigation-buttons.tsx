@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 interface NavigationButtonsProps {
   isCalendarOpen: boolean;
@@ -34,7 +36,7 @@ export const NavigationButtons: React.FC<NavigationButtonsProps> = ({
       )}
 
       <TouchableOpacity style={styles.navButton} onPress={onToggleCalendar}>
-        <Ionicons name={isCalendarOpen ? 'close' : 'calendar-outline'} size={20} color="#71717A" />
+        <Ionicons name={isCalendarOpen ? 'close' : 'calendar-outline'} size={20} color={ colors.text.muted } />
       </TouchableOpacity>
     </View>
   );
@@ -50,14 +52,14 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   todayButton: {
-    backgroundColor: '#27272A',
+    backgroundColor: colors.surface.panel,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 4,
   },
   todayButtonText: {
-    fontSize: 10,
-    fontWeight: '700',
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.bold,
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },

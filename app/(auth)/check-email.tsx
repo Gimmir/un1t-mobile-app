@@ -4,6 +4,7 @@ import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '@/src/theme/colors';
 
 export default function CheckEmailScreen() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function CheckEmailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-[#191919]">
+    <View className="flex-1" style={{ backgroundColor: colors.surface.app }}>
       <Stack.Screen options={{ headerShown: false }} />
       <StatusBar style="light" />
 
@@ -26,11 +27,14 @@ export default function CheckEmailScreen() {
           <View className="items-center justify-center mb-10">
             <MaterialCommunityIcons name="hexagon" size={140} color="white" />
             <View className="absolute">
-              <Ionicons name="mail" size={60} color="#191919" />
+              <Ionicons name="mail" size={60} color={ colors.surface.app } />
             </View>
           </View>
 
-          <Text className="text-[#a1a1aa] text-center mb-10 px-2 leading-6 text-base">
+          <Text
+            className="text-center mb-10 px-2 leading-6 text-base"
+            style={{ color: colors.text.secondary }}
+          >
             If there is an account associated with your email we will have sent you a link to re-set your password
           </Text>
 

@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import React from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export type SelectionOption = {
   key: string;
@@ -99,9 +101,9 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255,255,255,0.10)',
   },
   modalTitle: {
-    color: '#A1A1AA',
-    fontSize: 12,
-    fontWeight: '800',
+    color: colors.text.secondary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
   },
   closeChip: {
@@ -112,8 +114,8 @@ const styles = StyleSheet.create({
   },
   closeChipText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
   },
   listContent: {
     paddingHorizontal: 12,
@@ -137,11 +139,10 @@ const styles = StyleSheet.create({
   },
   itemText: {
     color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
   },
   itemTextSelected: {
     color: '#FACC15',
   },
 });
-

@@ -1,5 +1,7 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
+import { colors } from '@/src/theme/colors';
 
 export function WaiverCopy() {
   return (
@@ -31,11 +33,13 @@ export function WaiverCopy() {
         </Text>
       </ScrollView>
 
-      <View
-        className="h-8 absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#191919] to-transparent"
+      <LinearGradient
+        colors={[colors.surface.app, 'transparent']}
+        start={{ x: 0.5, y: 1 }}
+        end={{ x: 0.5, y: 0 }}
+        style={{ height: 32, position: 'absolute', bottom: 0, left: 0, right: 0 }}
         pointerEvents="none"
       />
     </View>
   );
 }
-

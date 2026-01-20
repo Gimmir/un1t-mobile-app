@@ -1,5 +1,5 @@
 import type { User } from '@/DATA_TYPES/user';
-import { useFetch } from '@/src/hooks/useFetch';
+import { useFetch, useMutate } from '@/src/hooks/useFetch';
 import { usersApi } from '../api/users.api';
 
 export function useUser(userId: string | null | undefined, initialData?: User) {
@@ -21,5 +21,11 @@ export function useCurrentUser() {
     {
       staleTime: 60 * 1000,
     }
+  );
+}
+
+export function useDeleteUser() {
+  return useMutate<unknown, Error, { userId: string }>(
+    ({ userId }) => usersApi.deleteUser(userId)
   );
 }

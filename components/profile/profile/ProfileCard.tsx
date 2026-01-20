@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
-export function ProfileCard(props: { children: ReactNode; style?: ViewStyle }) {
+export function ProfileCard(props: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   const { children, style } = props;
   return <View style={[styles.card, style]}>{children}</View>;
 }
@@ -18,4 +18,3 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
 });
-

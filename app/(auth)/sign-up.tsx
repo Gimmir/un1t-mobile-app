@@ -14,6 +14,8 @@ import { useForm } from 'react-hook-form';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as z from 'zod';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 // --- ВАЛІДАЦІЯ ---
 const signUpSchema = z.object({
@@ -49,7 +51,12 @@ export default function SignUpScreen() {
   
   const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
   const [isStudioModalVisible, setStudioModalVisible] = useState(false);
-  const { data: studios, isLoading: isLoadingStudios } = useStudios();
+  const studiosAccessToken = process.env.EXPO_PUBLIC_STUDIOS_TOKEN;
+  const { data: studios, isLoading: isLoadingStudios, error: studiosError } = useStudios({
+    accessToken: studiosAccessToken,
+    scope: 'public',
+    populate: 'studios',
+  });
 
   const studioOptions = useMemo(() => {
     const list = Array.isArray(studios) ? studios : [];
@@ -163,7 +170,9 @@ export default function SignUpScreen() {
         title="Choose Home Studio"
         data={studioOptions}
         isLoading={isLoadingStudios}
-        emptyText={isLoadingStudios ? 'Loading…' : 'No studios available.'}
+        emptyText={
+          isLoadingStudios ? 'Loading…' : studiosError ? 'Unable to load studios.' : 'No studios available.'
+        }
         renderItem={({ item }: { item: { id: string; name: string } }) => {
           const isSelected = selectedStudio === item.id;
           return (
@@ -218,7 +227,7 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191919',
+    backgroundColor: colors.surface.app,
   },
   safeArea: {
     flex: 1,
@@ -234,24 +243,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
   },
   modalFlag: {
-    fontSize: 22,
+    fontSize: typography.size.xxxl,
     marginRight: 12,
     color: '#FFFFFF',
   },
   modalRowText: {
-    fontSize: 14,
+    fontSize: typography.size.md,
     flex: 1,
     letterSpacing: 0.4,
   },
   modalRowTextActive: {
     color: '#FFFFFF',
-    fontWeight: '800',
+    fontWeight: typography.weight.heavy,
   },
   modalRowTextInactive: {
-    color: '#A1A1AA',
-    fontWeight: '700',
+    color: colors.text.secondary,
+    fontWeight: typography.weight.bold,
   },
 });

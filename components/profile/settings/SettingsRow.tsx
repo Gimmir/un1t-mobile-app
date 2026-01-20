@@ -1,5 +1,7 @@
 import React from 'react';
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export function SettingsRow(props: { label: string; value: string; onPress: () => void; isLast?: boolean }) {
   const { label, value, onPress, isLast } = props;
@@ -53,14 +55,14 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     letterSpacing: 0.3,
   },
   rowValue: {
-    color: '#A1A1AA',
-    fontSize: 14,
-    fontWeight: '600',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     letterSpacing: 0.2,
   },
   toggleRow: {
@@ -77,14 +79,14 @@ const styles = StyleSheet.create({
   },
   toggleTitle: {
     color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
     letterSpacing: 0.3,
     marginBottom: 8,
   },
   toggleSubtitle: {
-    color: '#6B7280',
-    fontSize: 12,
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
     lineHeight: 16,
   },
   toggleSwitchWrap: {

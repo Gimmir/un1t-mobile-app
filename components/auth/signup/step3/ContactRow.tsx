@@ -1,6 +1,8 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export type ContactOption = {
   id: string;
@@ -29,7 +31,7 @@ export function ContactRow(props: { contact: ContactOption; onPress: () => void 
           {contact.phone}
         </Text>
       </View>
-      <IconSymbol name="chevron.right" size={18} color="#71717A" />
+      <IconSymbol name="chevron.right" size={18} color={ colors.text.muted } />
     </TouchableOpacity>
   );
 }
@@ -41,7 +43,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
     gap: 12,
   },
   avatar: {
@@ -52,27 +54,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
   },
   avatarText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '900',
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.heavy,
   },
   text: {
     flex: 1,
   },
   name: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.2,
   },
   phone: {
-    color: '#71717A',
-    fontSize: 12,
-    fontWeight: '600',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
     marginTop: 4,
   },
 });
-

@@ -4,6 +4,7 @@ import { MonthView } from './month-view';
 import { NavigationButtons } from './navigation-buttons';
 import { DateInfo } from './types';
 import { WeekView } from './week-view';
+import { typography } from '@/src/theme/typography';
 
 interface DatePickerProps {
   monthYear: string;
@@ -89,8 +90,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   monthYear: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
     color: '#FFFFFF',
     letterSpacing: 0.8,
   },

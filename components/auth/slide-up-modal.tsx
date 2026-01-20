@@ -1,5 +1,8 @@
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { BlurView } from 'expo-blur';
 import { useEffect, useMemo, useState } from 'react';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 import {
   ActivityIndicator,
   Dimensions,
@@ -62,8 +65,11 @@ export function SlideUpModal<T extends { id: string | number }>({
 
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
-      <View style={{ flex: 1 }}>
-        <Pressable style={styles.overlay} onPress={onClose} />
+      <View style={styles.root}>
+        <View style={styles.backdrop}>
+          <BlurView intensity={18} tint="dark" style={StyleSheet.absoluteFillObject} />
+          <Pressable style={styles.overlay} onPress={onClose} />
+        </View>
 
         <View style={[styles.card, { maxHeight }]}>
           <View style={styles.header}>
@@ -82,12 +88,12 @@ export function SlideUpModal<T extends { id: string | number }>({
           {searchable ? (
             <View style={styles.searchBlock}>
               <View style={styles.searchInput}>
-                <IconSymbol name="magnifyingglass" size={18} color="#71717A" />
+                <IconSymbol name="magnifyingglass" size={18} color={ colors.text.muted } />
                 <TextInput
                   value={searchText}
                   onChangeText={handleSearchChange}
                   placeholder="Search..."
-                  placeholderTextColor="#71717A"
+                  placeholderTextColor={ colors.text.muted }
                   style={styles.searchText}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -99,7 +105,7 @@ export function SlideUpModal<T extends { id: string | number }>({
                     onPress={() => handleSearchChange('')}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
-                    <IconSymbol name="xmark" size={16} color="#71717A" />
+                    <IconSymbol name="xmark" size={16} color={ colors.text.muted } />
                   </TouchableOpacity>
                 ) : null}
               </View>
@@ -130,9 +136,15 @@ export function SlideUpModal<T extends { id: string | number }>({
 }
 
 const styles = {
-  overlay: {
+  root: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.55)',
   },
   card: {
     position: 'absolute',
@@ -141,8 +153,8 @@ const styles = {
     top: 110,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     overflow: 'hidden',
   },
   header: {
@@ -153,12 +165,12 @@ const styles = {
     paddingTop: 14,
     paddingBottom: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '800',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
   },
   closeButton: {
@@ -169,20 +181,20 @@ const styles = {
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.04)',
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
   },
   searchBlock: {
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
   },
   searchInput: {
     height: 44,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     backgroundColor: '#111113',
     paddingHorizontal: 12,
     flexDirection: 'row',
@@ -192,8 +204,8 @@ const styles = {
   searchText: {
     flex: 1,
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
   },
   listContent: {
     paddingVertical: 6,
@@ -203,8 +215,8 @@ const styles = {
     alignItems: 'center',
   },
   emptyText: {
-    color: '#A1A1AA',
-    fontSize: 14,
-    fontWeight: '600',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
   },
 } as const;

@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
+import { colors } from '@/src/theme/colors';
 
 export function ProfileTopBackground() {
   return (
@@ -10,7 +11,7 @@ export function ProfileTopBackground() {
         style={styles.textureImage}
         resizeMode="cover"
       />
-      <LinearGradient colors={['rgba(0,0,0,0)', '#191919']} style={styles.textureOverlay} />
+      <LinearGradient colors={['rgba(0,0,0,0)', colors.surface.app]} style={styles.textureOverlay} />
     </View>
   );
 }
@@ -36,4 +37,3 @@ const styles = StyleSheet.create({
     height: 260,
   },
 });
-

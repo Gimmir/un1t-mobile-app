@@ -15,7 +15,7 @@ export function useAuth() {
   return useFetch<User>(
     ['user', 'me'],
     async () => {
-      const response = await api.get<any>('/users/me');
+      const response = await api.get<any>('/users/me?populate=creditLedger,subscription');
       const userData = response?.data || response;
       return userData;
     },

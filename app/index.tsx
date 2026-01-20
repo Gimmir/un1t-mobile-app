@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Image, ImageBackground, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '@/src/theme/colors';
 
 // --- Компонент для плавного прояву контенту ---
 const ContentFadeIn = ({ isLoaded, children }: { isLoaded: boolean, children: React.ReactNode }) => {
@@ -44,7 +45,7 @@ export default function LandingScreen() {
                 <View style={styles.overlay}>
                   <View style={styles.overlayDim} />
                     <LinearGradient
-                    colors={['rgba(0,0,0,0.10)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.70)', '#191919']}
+                    colors={['rgba(0,0,0,0.10)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.70)', colors.surface.app]}
                     locations={[0, 0.45, 0.78, 1]}
                     style={styles.overlayGradient}
                   />
@@ -64,14 +65,14 @@ export default function LandingScreen() {
                                 <View style={styles.buttonContainer}>
                                   <PrimaryButton
                                     title="SIGN UP"
-                                    onPress={() => router.replace('/(auth)/sign-up')}
+                                    onPress={() => router.push('/(auth)/sign-up')}
                                   />
                                 </View>
                                 <View style={styles.buttonContainer}>
                                   <PrimaryButton
                                     title="LOGIN"
                                     variant="secondary"
-                                    onPress={() => router.replace('/(auth)/login')}
+                                    onPress={() => router.push('/(auth)/login')}
                                   />
                                 </View>
                               </View>
@@ -101,7 +102,7 @@ export default function LandingScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#191919',
+        backgroundColor: colors.surface.app,
     },
     background: {
         flex: 1,
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#191919',
+        backgroundColor: colors.surface.app,
         zIndex: 10,
     },
     loadingLogo: {

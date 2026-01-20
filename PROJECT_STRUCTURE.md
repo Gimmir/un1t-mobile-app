@@ -19,7 +19,12 @@ un1t-mobile-app/
 │   ├── (tabs)/                           # Tab navigation (logged in)
 │   │   ├── _layout.tsx                   # Tab bar configuration
 │   │   ├── index.tsx                     # Home screen
-│   │   ├── performance.tsx               # Performance stats screen
+│   │   ├── performance/                  # Performance stats screen
+│   │   │   ├── index.tsx
+│   │   │   └── exercise-details/
+│   │   │       ├── [id].tsx
+│   │   │       └── [id]/
+│   │   │           └── update-results.tsx
 │   │   ├── (classes)/                    # Classes section
 │   │   │   ├── _layout.tsx               # Classes layout
 │   │   │   ├── index.tsx                 # Classes list

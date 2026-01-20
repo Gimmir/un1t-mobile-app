@@ -1,5 +1,6 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { CIRCLE_SIZE, PILL_WIDTH, TAB_HEIGHT } from './constants';
+import { typography } from '@/src/theme/typography';
 
 export const styles = StyleSheet.create({
   floatingContainer: {
@@ -90,8 +91,10 @@ export const styles = StyleSheet.create({
   },
 
   tabLabel: {
-    fontSize: 9,
+    fontSize: typography.size.xs,
     marginTop: 4,
-    fontWeight: '500',
+    fontWeight: typography.weight.medium,
+    fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
+    textAlign: 'center',
   },
 });

@@ -1,6 +1,8 @@
 import { CustomInput, PrimaryButton } from '@/components/auth';
 import React from 'react';
 import type { Control, FieldErrors, FieldValues } from 'react-hook-form';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 import {
   ActivityIndicator,
   Animated,
@@ -116,7 +118,7 @@ const styles = StyleSheet.create({
   },
   serverErrorText: {
     color: '#FCA5A5',
-    fontSize: 12,
+    fontSize: typography.size.sm,
     lineHeight: 16,
     marginTop: 2,
     marginLeft: 10,
@@ -128,8 +130,8 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
   },
   loadingButton: {
     height: 52,
@@ -145,13 +147,13 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   bottomText: {
-    color: '#A1A1AA',
-    fontSize: 13,
-    fontWeight: '600',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
   },
   bottomLink: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
   },
 });

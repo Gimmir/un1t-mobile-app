@@ -1,6 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import React, { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 type StudioOption = {
   id: string;
@@ -43,14 +46,18 @@ export const StudioSelector: React.FC<StudioSelectorProps> = ({
             <Text style={styles.studioName} numberOfLines={1}>
               {selectedTitle}
             </Text>
-            <Ionicons name="chevron-down" size={16} color="#71717A" />
+            <Ionicons name="chevron-down" size={16} color={ colors.text.muted } />
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
           activeOpacity={0.8}
           accessibilityRole="button"
-          onPress={onSchedulePress}
+          onPress={() => {
+            if (!onSchedulePress) return;
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            onSchedulePress();
+          }}
           style={[styles.scheduleButton, !onSchedulePress && styles.scheduleButtonDisabled]}
           disabled={!onSchedulePress}
         >
@@ -107,11 +114,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   studioLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#71717A',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: colors.text.secondary,
     marginBottom: 4,
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   studioRow: {
     flexDirection: 'row',
@@ -119,8 +126,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   studioName: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
     color: '#FFFFFF',
     maxWidth: '88%',
   },
@@ -134,9 +141,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   scheduleButtonText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#191919',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: colors.surface.app,
     letterSpacing: 0.5,
   },
   modalOverlay: {
@@ -150,8 +157,8 @@ const styles = StyleSheet.create({
     top: 110,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     overflow: 'hidden',
     maxHeight: 420,
   },
@@ -163,12 +170,12 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
   },
   modalTitle: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '800',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
   },
   modalClose: {
@@ -179,7 +186,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.04)',
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
   },
   modalList: {
     paddingVertical: 6,
@@ -191,15 +198,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
   },
   modalRowSelected: {
     backgroundColor: 'rgba(255,255,255,0.04)',
   },
   modalRowText: {
     color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
     letterSpacing: 0.4,
   },
   modalRowTextSelected: {

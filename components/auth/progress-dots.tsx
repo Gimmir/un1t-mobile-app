@@ -54,7 +54,7 @@ function AnimatedDot({ isActive, isDone }: { isActive: boolean; isDone: boolean 
         useNativeDriver: false,
       }),
     ]).start();
-  }, [isActive, isDone]);
+  }, [isActive, isDone, widthAnim, colorAnim]);
 
   const backgroundColor = colorAnim.interpolate({
     inputRange: [0, 1],

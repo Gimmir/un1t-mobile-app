@@ -1,4 +1,6 @@
 import { StyleSheet } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -19,24 +21,14 @@ export const styles = StyleSheet.create({
   },
   topBar: {
     paddingHorizontal: 16,
-    paddingTop: 6,
-    flexDirection: 'row',
+    paddingTop: 12,
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  backButton: {
-    width: 44,
-    height: 44,
     justifyContent: 'center',
-  },
-  topBarSpacer: {
-    width: 44,
-    height: 44,
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '800',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -52,9 +44,9 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   tabText: {
-    color: '#A1A1AA',
-    fontSize: 12,
-    fontWeight: '800',
+    color: colors.text.secondary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -90,16 +82,16 @@ export const styles = StyleSheet.create({
   },
   helperTitle: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '900',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   helperText: {
     marginTop: 10,
-    color: '#71717A',
-    fontSize: 14,
-    fontWeight: '600',
+    color: colors.text.muted,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     textAlign: 'center',
   },
   emptyWrap: {
@@ -123,25 +115,25 @@ export const styles = StyleSheet.create({
     paddingTop: 24,
   },
   emptyKicker: {
-    color: '#A1A1AA',
-    fontSize: 11,
-    fontWeight: '800',
+    color: colors.text.secondary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2.2,
     textTransform: 'uppercase',
     marginBottom: 10,
   },
   emptyTitle: {
     color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: '900',
+    fontSize: typography.size.xxxl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   emptySubtitle: {
     marginTop: 10,
     color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     lineHeight: 20,
     maxWidth: 320,
   },
@@ -154,8 +146,8 @@ export const styles = StyleSheet.create({
   },
   emptyCtaText: {
     color: '#000000',
-    fontSize: 12,
-    fontWeight: '900',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },

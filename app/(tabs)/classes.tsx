@@ -15,6 +15,7 @@ import { Animated, AppState, RefreshControl, ScrollView, StyleSheet, View } from
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors } from '@/src/theme/colors';
 
 export default function ClassesScreen() {
   const insets = useSafeAreaInsets();
@@ -233,7 +234,7 @@ export default function ClassesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191919',
+    backgroundColor: colors.surface.app,
   },
   safeArea: {
     flex: 1,
@@ -246,8 +247,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     overflow: 'hidden',
   },
   classList: {

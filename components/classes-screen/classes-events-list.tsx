@@ -3,6 +3,8 @@ import { EventCard } from '@/components/events';
 import { usePopulatedEvent } from '@/src/features/events/hooks/use-events';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 type ClassesEventsListProps = {
   events: Event[];
@@ -71,16 +73,16 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   helperText: {
     marginTop: 10,
-    color: '#71717A',
-    fontSize: 14,
-    fontWeight: '500',
+    color: colors.text.muted,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.medium,
     textAlign: 'center',
   },
 });

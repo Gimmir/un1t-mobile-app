@@ -12,6 +12,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as z from 'zod';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 const today = new Date();
 const maxDobDate = new Date(today.getFullYear() - 12, today.getMonth(), today.getDate());
@@ -235,20 +237,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
   },
   modalRowText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: typography.size.md,
     letterSpacing: 0.4,
   },
   modalRowTextActive: {
     color: '#FFFFFF',
-    fontWeight: '800',
+    fontWeight: typography.weight.heavy,
   },
   modalRowTextInactive: {
-    color: '#A1A1AA',
-    fontWeight: '700',
+    color: colors.text.secondary,
+    fontWeight: typography.weight.bold,
   },
   countryRow: {
     flexDirection: 'row',
@@ -257,12 +259,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
     gap: 12,
   },
   countryName: {
     flex: 1,
-    fontSize: 14,
+    fontSize: typography.size.md,
     letterSpacing: 0.4,
   },
   countryRight: {
@@ -271,9 +273,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   countryCode: {
-    color: '#71717A',
-    fontSize: 12,
-    fontWeight: '800',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.2,
   },
 });

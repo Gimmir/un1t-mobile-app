@@ -2,6 +2,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { ReactNode } from 'react';
 import { Control, Controller, FieldError, FieldValues, Path } from 'react-hook-form';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
 
 interface CustomCheckboxProps<T extends FieldValues> {
   control: Control<T>;
@@ -33,7 +34,7 @@ export function CustomCheckbox<T extends FieldValues>({
 
           <View className="flex-1">
             {typeof label === 'string' ? (
-              <Text className="text-white" style={{ fontSize: 16, lineHeight: 24 }}>
+              <Text className="text-white" style={{ fontSize: typography.size.lg, lineHeight: 24 }}>
                 {label}
               </Text>
             ) : (

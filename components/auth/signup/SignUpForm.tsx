@@ -2,6 +2,8 @@ import { CustomCheckbox, CustomInput, CustomSelect, PrimaryButton } from '@/comp
 import React from 'react';
 import type { Control, FieldErrors, FieldValues } from 'react-hook-form';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 type SignUpFields = {
   firstName: string;
@@ -174,9 +176,9 @@ const styles = StyleSheet.create({
   },
   termsText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: typography.size.md,
     lineHeight: 20,
-    fontWeight: '600',
+    fontWeight: typography.weight.semibold,
   },
   termsLink: {
     textDecorationLine: 'underline',
@@ -188,13 +190,13 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   bottomText: {
-    color: '#A1A1AA',
-    fontSize: 13,
-    fontWeight: '600',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
   },
   bottomLink: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
   },
 });

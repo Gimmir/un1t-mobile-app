@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { HexagonAvatar } from '@/components/classes';
 import { SwipeToConfirm } from './swipe-to-confirm';
 import Svg, { Polygon } from 'react-native-svg';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 const PANEL_PADDING = 16;
 
@@ -23,6 +26,7 @@ type ConfirmBookingModalProps = {
   startTimeLabel: string;
   durationMinutes: number | null;
   creditCost: number | null;
+  availableCredits?: number | null;
 };
 
 function formatCredits(cost: number) {
@@ -46,12 +50,22 @@ export function ConfirmBookingModal({
   startTimeLabel,
   durationMinutes,
   creditCost,
+  availableCredits,
 }: ConfirmBookingModalProps) {
   const [didAttemptConfirm, setDidAttemptConfirm] = useState(false);
   const [mode, setMode] = useState<'confirm' | 'success'>('confirm');
   const [showConfirmPanel, setShowConfirmPanel] = useState(true);
   const transition = useRef(new Animated.Value(0)).current;
   const { height: windowHeight } = useWindowDimensions();
+  const resolvedCreditCost = creditCost ?? 1;
+  const availableCreditsValue =
+    typeof availableCredits === 'number' ? availableCredits : null;
+  const hasUnlimitedCredits = availableCreditsValue === Number.POSITIVE_INFINITY;
+  const insufficientCredits =
+    !hasUnlimitedCredits &&
+    availableCreditsValue != null &&
+    Number.isFinite(availableCreditsValue) &&
+    resolvedCreditCost > availableCreditsValue;
 
   const confirmCardHeight = useMemo(() => {
     const maxHeight = Math.min(windowHeight * 0.86, 640);
@@ -67,11 +81,10 @@ export function ConfirmBookingModal({
   const lastMeasuredSuccessHeight = useRef<number | null>(null);
   const lastMeasuredConfirmHeight = useRef<number | null>(null);
 
-  const creditsText = useMemo(() => {
-    const cost = creditCost ?? 0;
-    if (cost <= 0) return 'No credits will be deducted';
-    return `You will be charged -${formatCredits(cost)}`;
-  }, [creditCost]);
+  const creditsText = `You will be charged -${formatCredits(resolvedCreditCost)}`;
+  const creditsErrorMessage = insufficientCredits
+    ? 'Not enough credits to book this class.'
+    : errorMessage;
 
   const durationText = useMemo(() => {
     if (durationMinutes == null) return '—';
@@ -167,6 +180,8 @@ export function ConfirmBookingModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
+        <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFillObject} pointerEvents="none" />
+        <View style={styles.backdropTint} pointerEvents="none" />
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} disabled={Boolean(isSubmitting)} />
 
         <Animated.View style={[styles.card, { height: cardHeight, transform: [{ scale: cardScale }] }]}>
@@ -212,7 +227,9 @@ export function ConfirmBookingModal({
                 <View style={styles.creditsCard}>
                   <Text style={styles.creditsTitle}>Credits</Text>
                   <Text style={styles.creditsText}>{creditsText}</Text>
-                  {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+                  {!!creditsErrorMessage && (
+                    <Text style={styles.errorText}>{creditsErrorMessage}</Text>
+                  )}
                 </View>
 
                 <SwipeToConfirm
@@ -221,8 +238,14 @@ export function ConfirmBookingModal({
                     setDidAttemptConfirm(true);
                     onConfirm();
                   }}
-                  disabled={Boolean(isSubmitting)}
-                  label={isSubmitting ? 'Booking…' : 'Swipe to book class'}
+                  disabled={Boolean(isSubmitting) || insufficientCredits}
+                  label={
+                    insufficientCredits
+                      ? 'Not enough credits'
+                      : isSubmitting
+                        ? 'Booking…'
+                        : 'Swipe to book class'
+                  }
                 />
 
                 <Pressable
@@ -308,13 +331,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 18,
     justifyContent: 'center',
+  },
+  backdropTint: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.68)',
   },
   card: {
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     padding: 0,
     overflow: 'hidden',
     position: 'relative',
@@ -334,28 +360,28 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '900',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
   subtitle: {
     marginTop: 6,
-    color: '#A1A1AA',
-    fontSize: 13,
-    fontWeight: '600',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     lineHeight: 18,
   },
   detailsCard: {
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     overflow: 'hidden',
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#1F1F23',
+    backgroundColor: colors.surface.elevated,
   },
   detailRow: {
     paddingHorizontal: 14,
@@ -366,9 +392,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   detailLabel: {
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '900',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
@@ -376,8 +402,8 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
     color: '#E4E4E7',
-    fontSize: 12,
-    fontWeight: '800',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.6,
   },
   coachRow: {
@@ -392,17 +418,17 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   coachLabel: {
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '900',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   coachName: {
     marginTop: 4,
     color: '#E4E4E7',
-    fontSize: 13,
-    fontWeight: '900',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.4,
   },
   creditsCard: {
@@ -412,28 +438,28 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     backgroundColor: 'rgba(255,255,255,0.04)',
   },
   creditsTitle: {
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '900',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   creditsText: {
     marginTop: 6,
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.4,
   },
   errorText: {
     marginTop: 10,
     color: '#FCA5A5',
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
     lineHeight: 16,
   },
   cancelButton: {
@@ -441,7 +467,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     backgroundColor: 'rgba(255,255,255,0.03)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -450,9 +476,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   cancelText: {
-    color: '#A1A1AA',
-    fontSize: 13,
-    fontWeight: '900',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
@@ -476,24 +502,24 @@ const styles = StyleSheet.create({
   successTitle: {
     marginTop: 14,
     color: '#FFFFFF',
-    fontSize: 22,
-    fontWeight: '900',
+    fontSize: typography.size.xxxl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2.2,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   successSubtitle: {
     marginTop: 10,
-    color: '#A1A1AA',
-    fontSize: 14,
-    fontWeight: '700',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
     lineHeight: 20,
     textAlign: 'center',
     paddingHorizontal: 10,
   },
   successSubtitleStrong: {
     color: '#FFFFFF',
-    fontWeight: '900',
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.2,
   },
   successActions: {
@@ -509,8 +535,8 @@ const styles = StyleSheet.create({
   },
   successPrimaryText: {
     color: '#0A0A0A',
-    fontSize: 13,
-    fontWeight: '900',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -519,15 +545,15 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#3F3F46',
+    borderColor: colors.border.strong,
     backgroundColor: 'rgba(255,255,255,0.03)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   successSecondaryText: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '900',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },

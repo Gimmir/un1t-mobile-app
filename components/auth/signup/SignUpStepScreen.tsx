@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { ReactNode, useMemo } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors } from '@/src/theme/colors';
 
 export function SignUpStepScreen(props: {
   step: number;
@@ -21,7 +22,7 @@ export function SignUpStepScreen(props: {
     totalSteps,
     backgroundHeight,
     onBack,
-    keyboardAvoiding = true,
+    keyboardAvoiding = false,
     scrollable = true,
     children,
     contentContainerStyle,
@@ -73,7 +74,7 @@ export function SignUpStepScreen(props: {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191919',
+    backgroundColor: colors.surface.app,
   },
   safeArea: {
     flex: 1,
@@ -84,4 +85,3 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
 });
-

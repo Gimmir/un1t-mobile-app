@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { DetailRow, FormKey, FormValues } from './types';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export function DetailRowItem(props: {
   row: DetailRow;
@@ -59,7 +61,7 @@ export function DetailRowItem(props: {
             value={formValues[formKey] ?? ''}
             onChangeText={(text) => onChange(formKey, text)}
             placeholder={row.placeholder}
-            placeholderTextColor="#52525B"
+            placeholderTextColor={ colors.text.placeholder }
             keyboardType={row.keyboardType}
             autoCapitalize={row.autoCapitalize ?? 'none'}
             multiline={row.multiline}
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
     gap: 16,
   },
   rowMultiline: {
@@ -101,16 +103,16 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     maxWidth: '45%',
     color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     letterSpacing: 0.3,
   },
   rowValue: {
     flex: 1,
     textAlign: 'right',
-    color: '#A1A1AA',
-    fontSize: 14,
-    fontWeight: '500',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.medium,
     letterSpacing: 0.2,
   },
   rowValueMissing: {
@@ -121,11 +123,11 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     borderRadius: 10,
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.medium,
     letterSpacing: 0.2,
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -142,7 +144,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -150,11 +152,11 @@ const styles = StyleSheet.create({
   pickerText: {
     textAlign: 'right',
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.medium,
     letterSpacing: 0.2,
   },
   pickerPlaceholder: {
-    color: '#71717A',
+    color: colors.text.muted,
   },
 });

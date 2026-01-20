@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { StyleProp, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { styles } from './styles';
 
 export function ClassDetailsBottomCta({
@@ -12,6 +12,8 @@ export function ClassDetailsBottomCta({
   textColor,
   label,
   onPress,
+  buttonStyle,
+  textStyle,
 }: {
   paddingBottom: number;
   disabled: boolean;
@@ -21,6 +23,8 @@ export function ClassDetailsBottomCta({
   textColor: string;
   label: string;
   onPress: () => void;
+  buttonStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }) {
   return (
     <View style={[styles.bottomCtaWrap, { paddingBottom }]}>
@@ -48,11 +52,11 @@ export function ClassDetailsBottomCta({
               : null),
           },
           disabled && styles.ctaButtonDisabled,
+          buttonStyle,
         ]}
       >
-        <Text style={[styles.ctaText, { color: textColor }]}>{label}</Text>
+        <Text style={[styles.ctaText, { color: textColor }, textStyle]}>{label}</Text>
       </TouchableOpacity>
     </View>
   );
 }
-

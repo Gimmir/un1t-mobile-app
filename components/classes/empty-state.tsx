@@ -1,5 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export const EmptyState: React.FC = () => {
   return (
@@ -15,8 +17,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#71717A',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.medium,
+    color: colors.text.muted,
   },
 });

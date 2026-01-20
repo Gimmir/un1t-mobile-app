@@ -3,6 +3,8 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import React from 'react';
 import type { Control, FieldErrors, FieldValues } from 'react-hook-form';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 type Step3Fields = {
   nokFirstName: string;
@@ -60,12 +62,12 @@ export function Step3Form<T extends FieldValues & Step3Fields>(props: {
         style={styles.contactsButton}
       >
         <View style={styles.contactsButtonLeft}>
-          <IconSymbol name="magnifyingglass" size={18} color="#A1A1AA" />
+          <IconSymbol name="magnifyingglass" size={18} color={ colors.text.secondary } />
           <Text style={styles.contactsButtonText}>
             {hasPhoneSelected ? 'Pick another contact' : 'Pick from contacts'}
           </Text>
         </View>
-        <IconSymbol name="chevron.right" size={18} color="#71717A" />
+        <IconSymbol name="chevron.right" size={18} color={ colors.text.muted } />
       </TouchableOpacity>
 
       <View style={{ marginTop: 6 }}>
@@ -107,8 +109,7 @@ const styles = StyleSheet.create({
   },
   contactsButtonText: {
     color: '#E4E4E7',
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
   },
 });
-

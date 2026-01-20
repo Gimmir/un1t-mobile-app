@@ -1,4 +1,6 @@
 import { Platform, StyleSheet } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -48,8 +50,8 @@ export const styles = StyleSheet.create({
   },
   topTitle: {
     color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '800',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -67,26 +69,26 @@ export const styles = StyleSheet.create({
   },
   classTitle: {
     color: '#FFFFFF',
-    fontSize: 28,
-    fontWeight: '900',
+    fontSize: typography.size.xxxl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
   classMeta: {
     marginTop: 12,
     color: '#E4E4E7',
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
     letterSpacing: 2,
   },
   classMetaStrong: {
     color: '#FFFFFF',
-    fontWeight: '900',
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.2,
   },
   classMetaMuted: {
-    color: '#D4D4D8',
-    fontWeight: '700',
+    color: colors.text.secondary,
+    fontWeight: typography.weight.bold,
     letterSpacing: 0.3,
   },
   statusBadge: {
@@ -97,16 +99,16 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
   },
   statusBadgeText: {
-    fontSize: 11,
-    fontWeight: '900',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   missingMeta: {
     marginTop: 10,
-    color: '#6B7280',
-    fontSize: 11,
-    fontWeight: '800',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -118,15 +120,15 @@ export const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    color: '#71717A',
-    fontSize: 14,
-    fontWeight: '600',
+    color: colors.text.muted,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     textAlign: 'center',
   },
   errorTitle: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '900',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -136,8 +138,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
   },
   instructorRow: {
     flexDirection: 'row',
@@ -148,17 +150,17 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   sectionKicker: {
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '800',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   instructorName: {
     marginTop: 6,
     color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '900',
+    fontSize: typography.size.xxl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1,
   },
   descriptionBlock: {
@@ -167,7 +169,7 @@ export const styles = StyleSheet.create({
   descriptionText: {
     marginTop: 14,
     color: '#B6B6BE',
-    fontSize: 16,
+    fontSize: typography.size.lg,
     lineHeight: 27,
   },
   detailsBlock: {
@@ -177,13 +179,13 @@ export const styles = StyleSheet.create({
     marginTop: 14,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     overflow: 'hidden',
   },
   detailsDivider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#1F1F23',
+    backgroundColor: colors.surface.elevated,
   },
   detailRow: {
     paddingHorizontal: 16,
@@ -194,9 +196,9 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   detailLabel: {
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '800',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -204,8 +206,8 @@ export const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
     color: '#E4E4E7',
-    fontSize: 12,
-    fontWeight: '800',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.6,
   },
   tagsWrap: {
@@ -219,13 +221,13 @@ export const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     backgroundColor: 'rgba(255,255,255,0.04)',
   },
   tagChipText: {
-    color: '#A1A1AA',
-    fontSize: 11,
-    fontWeight: '900',
+    color: colors.text.secondary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -266,8 +268,8 @@ export const styles = StyleSheet.create({
     opacity: 0.92,
   },
   ctaText: {
-    fontSize: 16,
-    fontWeight: '900',
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },

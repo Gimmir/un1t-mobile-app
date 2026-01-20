@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { DetailSection, FormKey, FormValues } from './types';
 import { DetailRowItem } from './DetailRowItem';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export function DetailSectionCard(props: {
   section: DetailSection;
@@ -42,9 +44,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginHorizontal: 16,
     marginBottom: 10,
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '700',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
     letterSpacing: 2,
   },
   card: {

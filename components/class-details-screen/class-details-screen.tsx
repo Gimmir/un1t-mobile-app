@@ -1,9 +1,10 @@
 import { ConfirmBookingModal, ConfirmCancelBookingModal } from '@/components/bookings';
 import { useBookings, useCreateBooking, useUpdateBooking } from '@/src/features/bookings/hooks/use-bookings';
+import { useCreditsBalance } from '@/src/features/billing/hooks/use-credits';
 import { useEvent, usePopulatedEvent } from '@/src/features/events/hooks/use-events';
 import { useCurrentUser } from '@/src/features/users/hooks/use-users';
+import { resolveUserStudioId } from '@/src/features/users/utils/resolve-user-studio-id';
 import { addToSystemCalendar } from '@/src/lib/calendar';
-import { parseISO } from 'date-fns';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -18,6 +19,7 @@ import { styles } from './styles';
 import { ClassDetailsTopBar } from './top-bar';
 import { useClassDetailsDerived } from './use-class-details-derived';
 import { tryParseEvent } from './utils';
+import { parseEventDateTime } from '@/src/features/events/utils/event-datetime';
 
 export function ClassDetailsScreen() {
   const router = useRouter();
@@ -49,6 +51,23 @@ export function ClassDetailsScreen() {
 
   const { data: bookings = [] } = useBookings();
   const { data: currentUser } = useCurrentUser();
+  const creditsStudioId = useMemo(() => {
+    const eventStudio =
+      (displayEvent as any)?.studio ??
+      (displayEvent as any)?.studioId ??
+      (displayEvent as any)?.studio_id ??
+      null;
+    if (typeof eventStudio === 'string' && eventStudio.trim().length > 0) return eventStudio;
+    if (eventStudio && typeof eventStudio === 'object') {
+      const nestedId = (eventStudio as any)?._id ?? (eventStudio as any)?.id ?? null;
+      if (typeof nestedId === 'string' && nestedId.trim().length > 0) return nestedId;
+    }
+    return resolveUserStudioId(currentUser);
+  }, [displayEvent, currentUser]);
+  const { data: creditsBalance } = useCreditsBalance({
+    enabled: Boolean(currentUser),
+    studioId: creditsStudioId,
+  });
 
   const derived = useClassDetailsDerived({
     displayEvent,
@@ -64,6 +83,7 @@ export function ClassDetailsScreen() {
   const ctaBorderColor = derived.isBookedByMe ? 'rgba(244, 63, 94, 0.28)' : 'transparent';
   const bookingErrorMessage = (createBookingError as Error | null)?.message ?? null;
   const cancelErrorMessage = (cancelBookingError as Error | null)?.message ?? null;
+  const shouldShowCta = !derived.isEventEnded;
 
   return (
     <View style={styles.container}>
@@ -139,25 +159,27 @@ export function ClassDetailsScreen() {
           </View>
         </ScrollView>
 
-        <ClassDetailsBottomCta
-          paddingBottom={Math.max(14, insets.bottom + 14)}
-          disabled={ctaDisabled}
-          isCancel={derived.isBookedByMe}
-          backgroundColor={ctaBg}
-          borderColor={ctaBorderColor}
-          textColor={ctaTextColor}
-          label={event ? ctaText : 'BOOK CLASS'}
-          onPress={() => {
-            if (ctaDisabled) return;
-            if (derived.isBookedByMe) {
-              setCancelResetKey((v) => v + 1);
-              setIsConfirmCancelOpen(true);
-            } else {
-              setConfirmResetKey((v) => v + 1);
-              setIsConfirmBookingOpen(true);
-            }
-          }}
-        />
+        {shouldShowCta ? (
+          <ClassDetailsBottomCta
+            paddingBottom={Math.max(14, insets.bottom + 14)}
+            disabled={ctaDisabled}
+            isCancel={derived.isBookedByMe}
+            backgroundColor={ctaBg}
+            borderColor={ctaBorderColor}
+            textColor={ctaTextColor}
+            label={event ? ctaText : 'BOOK CLASS'}
+            onPress={() => {
+              if (ctaDisabled) return;
+              if (derived.isBookedByMe) {
+                setCancelResetKey((v) => v + 1);
+                setIsConfirmCancelOpen(true);
+              } else {
+                setConfirmResetKey((v) => v + 1);
+                setIsConfirmBookingOpen(true);
+              }
+            }}
+          />
+        ) : null}
       </SafeAreaView>
 
       <ConfirmBookingModal
@@ -169,10 +191,14 @@ export function ClassDetailsScreen() {
         onAddToCalendar={async () => {
           if (!displayEvent?.start_time) return;
           try {
-            const startDate = parseISO(displayEvent.start_time);
-            const endDate = displayEvent.end_time
-              ? parseISO(displayEvent.end_time)
-              : new Date(startDate.getTime() + Math.max(30, displayEvent.duration ?? 60) * 60 * 1000);
+            const startDate = parseEventDateTime(displayEvent.start_time);
+            if (!startDate) return;
+            const parsedEndDate = displayEvent.end_time
+              ? parseEventDateTime(displayEvent.end_time)
+              : null;
+            const endDate =
+              parsedEndDate ??
+              new Date(startDate.getTime() + Math.max(30, displayEvent.duration ?? 60) * 60 * 1000);
 
             const result = await addToSystemCalendar({
               title: derived.eventNameForModal,
@@ -218,6 +244,7 @@ export function ClassDetailsScreen() {
         startTimeLabel={derived.modalStartTimeLabel || '—'}
         durationMinutes={derived.modalDuration}
         creditCost={derived.modalCreditCost}
+        availableCredits={creditsBalance?.available ?? null}
       />
 
       <ConfirmCancelBookingModal

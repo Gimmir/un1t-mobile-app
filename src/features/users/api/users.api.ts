@@ -22,4 +22,9 @@ export const usersApi = {
     const response = await api.get<unknown>('/users/me');
     return unwrapData<User>(response);
   },
+
+  deleteUser: async (userId: string) => {
+    const response = await api.delete<unknown>(`/users/${userId}`);
+    return unwrapData<unknown>(response);
+  },
 };

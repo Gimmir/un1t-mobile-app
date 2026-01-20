@@ -2,15 +2,16 @@
   "expo": {
     "name": "un1t-mobile-app",
     "slug": "un1t-mobile-app",
-    "version": "1.0.0",
+    "version": "2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
+    "backgroundColor": "#000000",
     "scheme": "un1tmobileapp",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.un1tmobileapp",
+      "bundleIdentifier": "com.pico.un1t.production",
       "infoPlist": {
         "NSCalendarsUsageDescription": "We use your calendar to add booked classes.",
         "NSRemindersUsageDescription": "We use your reminders to add booked classes."
@@ -39,7 +40,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#000000",
           "dark": {
             "backgroundColor": "#000000"
           }

@@ -1,5 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 interface DateItemProps {
   day: string;
@@ -30,9 +32,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dayLabel: {
-    fontSize: 9,
-    fontWeight: '600',
-    color: '#71717A',
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    color: colors.text.muted,
     marginBottom: 4,
     letterSpacing: 0.4,
   },
@@ -48,8 +50,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   dateText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
     color: '#FFFFFF',
   },
   dateTextSelected: {

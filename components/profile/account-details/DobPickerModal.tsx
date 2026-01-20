@@ -6,11 +6,16 @@ import { Modal, Platform, Text, TouchableOpacity, View } from 'react-native';
 export function DobPickerModal(props: {
   visible: boolean;
   value: Date;
-  maximumDate: Date;
+  maximumDate?: Date;
+  minimumDate?: Date;
+  title?: string;
+  showTopBorder?: boolean;
   onChange: (event: DateTimePickerEvent, selectedDate?: Date) => void;
   onClose: () => void;
 }) {
-  const { visible, value, maximumDate, onChange, onClose } = props;
+  const { visible, value, maximumDate, minimumDate, title, showTopBorder = true, onChange, onClose } = props;
+  const resolvedTitle = (title ?? 'DATE OF BIRTH').toUpperCase();
+  const topBorderClassName = showTopBorder ? 'border-t border-white/20' : '';
 
   if (!visible) return null;
 
@@ -28,11 +33,11 @@ export function DobPickerModal(props: {
           <BlurView
             intensity={80}
             tint="dark"
-            className="overflow-hidden rounded-t-3xl border-t border-white/20"
+            className={`overflow-hidden rounded-t-3xl ${topBorderClassName}`}
           >
             <View className="bg-black/40 pb-10 pt-2">
               <View className="flex-row justify-between items-center px-6 py-4 border-b border-white/10">
-                <Text className="text-zinc-400 text-sm tracking-wider font-bold">DATE OF BIRTH</Text>
+                <Text className="text-zinc-400 text-sm tracking-wider font-bold">{resolvedTitle}</Text>
                 <TouchableOpacity
                   onPress={onClose}
                   className="bg-white/10 px-4 py-1.5 rounded-full"
@@ -48,6 +53,7 @@ export function DobPickerModal(props: {
                   display="spinner"
                   onChange={onChange}
                   maximumDate={maximumDate}
+                  minimumDate={minimumDate}
                   themeVariant="dark"
                   textColor="white"
                 />
@@ -66,7 +72,7 @@ export function DobPickerModal(props: {
       display="default"
       onChange={onChange}
       maximumDate={maximumDate}
+      minimumDate={minimumDate}
     />
   );
 }
-

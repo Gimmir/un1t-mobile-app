@@ -21,6 +21,15 @@ export interface User {
   role: 'user' | 'admin' | 'vendor' | 'client' | 'coach' | 'owner';
   isEmailVerified?: boolean;
   status?: 'active' | 'inactive' | 'blocked';
+  subscription?: {
+    status?: string;
+    planType?: string;
+    currentPeriodStart?: string;
+    currentPeriodEnd?: string;
+    cancelAtPeriodEnd?: boolean;
+    [key: string]: unknown;
+  } | null;
+  creditLedger?: unknown;
   birthday?: string;
   dob?: string;
   country?: string;

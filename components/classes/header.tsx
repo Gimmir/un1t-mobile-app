@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
 
 export const Header: React.FC = () => {
   return (
@@ -15,8 +16,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   headerTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.heavy,
     color: '#FFFFFF',
     letterSpacing: 2,
   },

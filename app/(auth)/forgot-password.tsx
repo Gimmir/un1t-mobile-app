@@ -5,12 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
   Image,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -20,6 +19,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as z from 'zod';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 const forgotPasswordSchema = z.object({
   email: z.string().min(1, { message: 'Email is required' }).email({ message: 'Invalid email address' }),
@@ -31,7 +32,6 @@ export default function ForgotPasswordScreen() {
   const router = useRouter();
   const { mutate: requestReset, isPending } = useRequestPasswordReset();
   const [serverError, setServerError] = useState('');
-  const keyboardOffset = useMemo(() => (Platform.OS === 'ios' ? 60 : 0), []);
   const handleBack = () => {
     if (router.canGoBack()) {
       router.back();
@@ -78,7 +78,7 @@ export default function ForgotPasswordScreen() {
           resizeMode="cover"
         />
         <LinearGradient
-          colors={['rgba(25,25,25,0.10)', 'rgba(25,25,25,0.70)', '#191919']}
+          colors={['rgba(25,25,25,0.10)', 'rgba(25,25,25,0.70)', colors.surface.app]}
           locations={[0, 0.55, 1]}
           style={styles.heroOverlay}
         />
@@ -97,59 +97,53 @@ export default function ForgotPasswordScreen() {
           </TouchableOpacity>
         </View>
 
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={keyboardOffset}
-          style={{ flex: 1 }}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-          >
-            <View style={styles.header}>
-              <View style={styles.headerInner}>
-                <Text style={styles.headerTitle}>{`Forgot\nPassword`}</Text>
-                <Text style={styles.headerSubtitle}>
-                  Enter the email address associated with your account to receive a reset link.
-                </Text>
+          <View style={styles.header}>
+            <View style={styles.headerInner}>
+              <Text style={styles.headerTitle}>{`Forgot\nPassword`}</Text>
+              <Text style={styles.headerSubtitle}>
+                Enter the email address associated with your account to receive a reset link.
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.formInner}>
+            <View style={{ gap: 14 }}>
+              <View>
+                <CustomInput
+                  control={control}
+                  name="email"
+                  error={errors.email}
+                  placeholder="Email"
+                  type="email"
+                  showClearButton
+                  editable={!isPending}
+                  textContentType="emailAddress"
+                  autoComplete="email"
+                  leadingIconName="envelope"
+                />
+                {serverError && !errors.email ? (
+                  <Text style={styles.serverErrorText}>{serverError}</Text>
+                ) : null}
+              </View>
+
+              <View style={{ marginTop: 6 }}>
+                {isPending ? (
+                  <View style={styles.loadingButton}>
+                    <ActivityIndicator size="small" color="#ffffff" />
+                  </View>
+                ) : (
+                  <PrimaryButton title="SEND RESET LINK" onPress={handleSubmit(onSubmit)} disabled={isPending} />
+                )}
               </View>
             </View>
-
-            <View style={styles.formInner}>
-              <View style={{ gap: 14 }}>
-                <View>
-                  <CustomInput
-                    control={control}
-                    name="email"
-                    error={errors.email}
-                    placeholder="Email"
-                    type="email"
-                    showClearButton
-                    editable={!isPending}
-                    textContentType="emailAddress"
-                    autoComplete="email"
-                    leadingIconName="envelope"
-                  />
-                  {serverError && !errors.email ? (
-                    <Text style={styles.serverErrorText}>{serverError}</Text>
-                  ) : null}
-                </View>
-
-                <View style={{ marginTop: 6 }}>
-                  {isPending ? (
-                    <View style={styles.loadingButton}>
-                      <ActivityIndicator size="small" color="#ffffff" />
-                    </View>
-                  ) : (
-                    <PrimaryButton title="SEND RESET LINK" onPress={handleSubmit(onSubmit)} disabled={isPending} />
-                  )}
-                </View>
-              </View>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </View>
   );
@@ -158,7 +152,7 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191919',
+    backgroundColor: colors.surface.app,
   },
   hero: {
     position: 'absolute',
@@ -207,15 +201,15 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#FFFFFF',
-    fontSize: 42,
-    fontWeight: '800',
+    fontSize: typography.size.display,
+    fontWeight: typography.weight.heavy,
     lineHeight: 46,
     letterSpacing: 0.1,
   },
   headerSubtitle: {
-    color: '#A1A1AA',
-    fontSize: 13,
-    fontWeight: '600',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     lineHeight: 18,
     marginTop: 12,
   },
@@ -225,7 +219,7 @@ const styles = StyleSheet.create({
   },
   serverErrorText: {
     color: '#F87171',
-    fontSize: 12,
+    fontSize: typography.size.sm,
     marginTop: 6,
     marginLeft: 4,
   },

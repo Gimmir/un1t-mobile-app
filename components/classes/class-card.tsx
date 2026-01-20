@@ -4,6 +4,8 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { HexagonAvatar } from './hexagon-avatar';
 import { ClassItem } from './types';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 const STATUS_STYLES = {
   AVAILABLE: {
@@ -32,9 +34,9 @@ const STATUS_STYLES = {
   },
   FINISHED: {
     label: 'Finished',
-    textColor: '#A1A1AA',
+    textColor: colors.text.secondary,
     backgroundColor: 'rgba(161, 161, 170, 0.12)',
-    accentColor: '#3F3F46',
+    accentColor: colors.border.strong,
   },
   CANCELLED: {
     label: 'Cancelled',
@@ -61,6 +63,7 @@ export const ClassCard: React.FC<ClassCardProps> = ({
   onPress,
 }) => {
   const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES.AVAILABLE;
+  const creditCost = 1;
 
   const resolvedDateLabel = React.useMemo(() => {
     if (dateLabel) return dateLabel;
@@ -99,7 +102,12 @@ export const ClassCard: React.FC<ClassCardProps> = ({
             </View>
           </View>
 
-          <Ionicons name="chevron-forward" size={20} color="#A1A1AA" />
+          <View style={styles.creditRow}>
+            <Text style={styles.creditText}>
+              {creditCost} {creditCost === 1 ? 'CREDIT' : 'CREDITS'}
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color={ colors.text.secondary } />
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -113,8 +121,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     overflow: 'hidden',
   },
   accent: {
@@ -135,15 +143,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dateText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#A1A1AA',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
+    color: colors.text.secondary,
     letterSpacing: 0.6,
     marginBottom: 2,
   },
   classTime: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
     color: '#FFFFFF',
     letterSpacing: 0.6,
   },
@@ -153,14 +161,14 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   statusText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   className: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.heavy,
     color: '#FFFFFF',
     letterSpacing: 0.6,
     marginBottom: 6,
@@ -176,14 +184,25 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   trainerLabel: {
-    fontSize: 12,
-    color: '#A1A1AA',
+    fontSize: typography.size.sm,
+    color: colors.text.secondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   trainerName: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
     color: '#E4E4E7',
+  },
+  creditRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  creditText: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: colors.text.secondary,
+    letterSpacing: 0.6,
   },
 });

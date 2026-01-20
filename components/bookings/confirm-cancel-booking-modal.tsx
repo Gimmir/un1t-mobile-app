@@ -1,7 +1,10 @@
+import { BlurView } from 'expo-blur';
 import React, { useMemo } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { HexagonAvatar } from '@/components/classes';
 import { SwipeToConfirm } from './swipe-to-confirm';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 type ConfirmCancelBookingModalProps = {
   visible: boolean;
@@ -42,6 +45,8 @@ export function ConfirmCancelBookingModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
+        <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFillObject} pointerEvents="none" />
+        <View style={styles.backdropTint} pointerEvents="none" />
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} disabled={Boolean(isSubmitting)} />
 
         <View style={styles.card}>
@@ -115,12 +120,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 18,
     justifyContent: 'center',
+  },
+  backdropTint: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.68)',
   },
   card: {
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     backgroundColor: '#0B0B0D',
     padding: 16,
   },
@@ -129,28 +137,28 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '900',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
   subtitle: {
     marginTop: 6,
-    color: '#A1A1AA',
-    fontSize: 13,
-    fontWeight: '600',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     lineHeight: 18,
   },
   detailsCard: {
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     overflow: 'hidden',
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#1F1F23',
+    backgroundColor: colors.surface.elevated,
   },
   detailRow: {
     paddingHorizontal: 14,
@@ -161,9 +169,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   detailLabel: {
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '900',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
@@ -171,8 +179,8 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
     color: '#E4E4E7',
-    fontSize: 12,
-    fontWeight: '800',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.6,
   },
   coachRow: {
@@ -187,17 +195,17 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   coachLabel: {
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '900',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   coachName: {
     marginTop: 4,
     color: '#E4E4E7',
-    fontSize: 13,
-    fontWeight: '900',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.4,
   },
   noticeCard: {
@@ -207,28 +215,28 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     backgroundColor: 'rgba(255,255,255,0.04)',
   },
   noticeTitle: {
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '900',
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   noticeText: {
     marginTop: 6,
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.4,
   },
   errorText: {
     marginTop: 10,
     color: '#FCA5A5',
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
     lineHeight: 16,
   },
   cancelButton: {
@@ -236,7 +244,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     backgroundColor: 'rgba(255,255,255,0.03)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -245,11 +253,10 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   cancelText: {
-    color: '#A1A1AA',
-    fontSize: 13,
-    fontWeight: '900',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
 });
-

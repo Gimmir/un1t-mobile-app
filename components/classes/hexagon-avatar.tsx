@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { ClipPath, Defs, Polygon, Image as SvgImage } from 'react-native-svg';
+import { colors } from '@/src/theme/colors';
 
 interface HexagonAvatarProps {
   uri: string;
@@ -30,7 +31,7 @@ export const HexagonAvatar: React.FC<HexagonAvatarProps> = ({ uri, size = 40, is
         </Defs>
 
         {isIcon ? (
-          <Polygon points={points} fill="#27272A" />
+          <Polygon points={points} fill={ colors.surface.panel } />
         ) : (
           <SvgImage
             href={{ uri }}

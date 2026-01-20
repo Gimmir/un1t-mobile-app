@@ -1,5 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 interface HomeHeroProps {
   title: string;
@@ -24,15 +26,15 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: '#FFFFFF',
-    fontWeight: '800',
-    fontSize: 18,
+    fontWeight: typography.weight.heavy,
+    fontSize: typography.size.xl,
     letterSpacing: 2,
   },
   heroSubtitle: {
-    color: '#A1A1AA',
+    color: colors.text.secondary,
     marginTop: 6,
     letterSpacing: 1,
-    fontSize: 12,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
   },
 });
-

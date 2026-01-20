@@ -1,33 +1,52 @@
 import React, { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 interface CreditSummaryCardProps {
-  remaining: number;
-  total: number;
-  expires: string;
+  remaining: number | null;
+  total: number | null;
+  expires: string | null;
   status: string;
 }
 
 export function CreditSummaryCard({ remaining, total, expires, status }: CreditSummaryCardProps) {
+  const formatCredits = (value: number | null) => {
+    if (value == null) return '—';
+    if (!Number.isFinite(value)) return '∞';
+    return String(value);
+  };
+  const remainingText = formatCredits(remaining);
+  const totalText = formatCredits(total);
+  const showTotal = Number.isFinite(total ?? Number.NaN) && remaining !== Number.POSITIVE_INFINITY;
+  const expiresText = expires && expires.trim().length > 0 ? expires : '—';
+  const statusColor = (() => {
+    const normalized = status.trim().toLowerCase();
+    if (normalized === 'inactive') return '#FBBF24';
+    if (normalized === 'blocked') return '#F43F5E';
+    if (normalized === 'active') return '#34D399';
+    return colors.text.muted;
+  })();
+
   return (
     <View style={styles.creditSurface}>
       <CreditColumn label="CREDITS">
         <Text style={styles.creditValue}>
-          {remaining}
-          <Text style={styles.creditTotal}>/{total}</Text>
+          {remainingText}
+          {showTotal ? <Text style={styles.creditTotal}>/{totalText}</Text> : null}
         </Text>
       </CreditColumn>
 
       <View style={styles.creditDivider} />
 
       <CreditColumn label="EXPIRES">
-        <Text style={styles.creditValue}>{expires}</Text>
+        <Text style={styles.creditValue}>{expiresText}</Text>
       </CreditColumn>
 
       <View style={styles.creditDivider} />
 
       <CreditColumn label="STATUS">
-        <Text style={styles.creditBadge}>{status}</Text>
+        <Text style={[styles.creditBadge, { color: statusColor }]}>{status}</Text>
       </CreditColumn>
     </View>
   );
@@ -48,8 +67,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
-    backgroundColor: '#101012',
+    borderColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     flexDirection: 'row',
     paddingVertical: 18,
     paddingHorizontal: 20,
@@ -59,8 +78,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   creditLabel: {
-    color: '#6B7280',
-    fontSize: 12,
+    color: colors.text.muted,
+    fontSize: typography.size.sm,
     letterSpacing: 1,
     textTransform: 'uppercase',
     marginBottom: 0,
@@ -70,29 +89,28 @@ const styles = StyleSheet.create({
   },
   creditValue: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: typography.size.md,
     lineHeight: 22,
-    fontWeight: '800',
+    fontWeight: typography.weight.heavy,
   },
   creditTotal: {
-    color: '#6B7280',
-    fontSize: 14,
+    color: colors.text.muted,
+    fontSize: typography.size.md,
     lineHeight: 22,
-    fontWeight: '600',
+    fontWeight: typography.weight.semibold,
   },
   creditDivider: {
     width: 1,
-    backgroundColor: '#1F1F23',
+    backgroundColor: colors.surface.elevated,
     marginHorizontal: 14,
     height: '100%',
   },
   creditBadge: {
     color: '#34D399',
-    fontWeight: '700',
+    fontWeight: typography.weight.bold,
     letterSpacing: 1,
-    fontSize: 14,
+    fontSize: typography.size.md,
     lineHeight: 22,
     textTransform: 'uppercase',
   },
 });
-

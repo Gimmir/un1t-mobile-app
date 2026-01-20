@@ -2,6 +2,8 @@ import { PrimaryButton } from '@/components/auth';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export function Step5Content(props: { onLetsGo: () => void }) {
   const { onLetsGo } = props;
@@ -41,47 +43,46 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 26,
-    fontWeight: '900',
+    fontSize: typography.size.xxxl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
     textAlign: 'center',
   },
   subtitle: {
-    color: '#A1A1AA',
-    fontSize: 14,
-    fontWeight: '600',
+    color: colors.text.secondary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     lineHeight: 20,
     textAlign: 'center',
     marginTop: 10,
     paddingHorizontal: 12,
   },
   card: {
-    backgroundColor: '#101012',
+    backgroundColor: colors.surface.base,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1F1F23',
+    borderColor: colors.surface.elevated,
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
   cardTitle: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '900',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
   },
   cardText: {
-    color: '#71717A',
-    fontSize: 13,
-    fontWeight: '600',
+    color: colors.text.muted,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     lineHeight: 18,
     marginTop: 10,
   },
 });
-

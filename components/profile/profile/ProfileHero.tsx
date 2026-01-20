@@ -1,5 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export function ProfileHero(props: { fullName: string; studioLocation: string }) {
   const { fullName, studioLocation } = props;
@@ -21,22 +23,21 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   heroTitle: {
-    fontSize: 22,
-    fontWeight: '800',
+    fontSize: typography.size.xxxl,
+    fontWeight: typography.weight.heavy,
     color: '#FFFFFF',
     letterSpacing: 2,
   },
   heroSubtitle: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
     letterSpacing: 3,
-    color: '#D4D4D8',
+    color: colors.text.secondary,
     marginTop: 6,
   },
   heroSubtitleAccent: {
     color: '#FFFFFF',
-    fontWeight: '800',
+    fontWeight: typography.weight.heavy,
     letterSpacing: 3,
   },
 });
-

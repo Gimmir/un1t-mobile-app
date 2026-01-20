@@ -113,6 +113,7 @@ export function Step2Form<T extends FieldValues & Step2Fields>(props: {
 
 const styles = StyleSheet.create({
   form: {
+    paddingTop: 10,
     gap: 14,
   },
   twoColRow: {

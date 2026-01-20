@@ -32,7 +32,12 @@ un1t-mobile-app/
 │   │   └── check-email.tsx
 │   ├── (tabs)/                  # Main app tab navigation
 │   │   ├── index.tsx            # Home/Dashboard
-│   │   ├── performance.tsx      # Performance stats
+│   │   ├── performance/         # Performance stats
+│   │   │   ├── index.tsx
+│   │   │   └── exercise-details/
+│   │   │       ├── [id].tsx
+│   │   │       └── [id]/
+│   │   │           └── update-results.tsx
 │   │   ├── (classes)/           # Classes section (grouped)
 │   │   │   ├── index.tsx        # Classes list
 │   │   │   ├── my-schedule.tsx  # User schedule

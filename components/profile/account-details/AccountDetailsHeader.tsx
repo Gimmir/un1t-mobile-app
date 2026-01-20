@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 export function AccountDetailsHeader(props: {
   title: string;
@@ -72,7 +74,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1F1F23',
+    borderBottomColor: colors.surface.elevated,
   },
   headerSide: {
     width: HEADER_SIDE_WIDTH,
@@ -93,17 +95,17 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 2,
   },
   editText: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     letterSpacing: 0.3,
   },
   editTextDisabled: {
-    color: '#9CA3AF',
+    color: colors.text.secondary,
   },
 });

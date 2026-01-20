@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '@/src/theme/typography';
 
 export function LoginTopBar(props: { onBack: () => void }) {
   const { onBack } = props;
@@ -59,8 +60,8 @@ const titleStyles = StyleSheet.create({
   },
   headerTitle: {
     color: '#FFFFFF',
-    fontSize: 42,
-    fontWeight: '800',
+    fontSize: typography.size.display,
+    fontWeight: typography.weight.heavy,
     lineHeight: 46,
     letterSpacing: 0.1,
   },
@@ -73,8 +74,8 @@ const titleStyles = StyleSheet.create({
   },
   smallHeaderTitle: {
     color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: '800',
+    fontSize: typography.size.xxxl,
+    fontWeight: typography.weight.heavy,
     letterSpacing: 0.5,
   },
 });

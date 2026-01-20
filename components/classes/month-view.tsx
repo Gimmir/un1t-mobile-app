@@ -1,6 +1,8 @@
 import React from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { WEEK_DAYS } from './constants';
+import { typography } from '@/src/theme/typography';
+import { colors } from '@/src/theme/colors';
 
 interface MonthViewProps {
   calendarHeight: Animated.Value;
@@ -98,9 +100,9 @@ const styles = StyleSheet.create({
   calendarWeekDay: {
     width: '14.28%',
     textAlign: 'center',
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#71717A',
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    color: colors.text.muted,
     letterSpacing: 0.4,
   },
   calendarGrid: {
@@ -123,11 +125,11 @@ const styles = StyleSheet.create({
   },
   calendarDayToday: {
     borderWidth: 2,
-    borderColor: '#71717A',
+    borderColor: colors.text.muted,
   },
   calendarDayText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     color: '#FFFFFF',
   },
   calendarDayTextEmpty: {
